@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+/* --- Global Reset & Typography --- */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+::selection {
+  background: #e5e7eb;
+}
+
+/* --- MinimalInput: bottom-border only --- */
+input[type="text"],
+input[type="password"],
+textarea,
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: none;
+}
+
+/* --- Smooth focus transitions --- */
+textarea,
+input[type="text"],
+input[type="password"] {
+  transition: border-color 200ms ease;
+}
+
+/* --- Scrollbar (WebKit) --- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* --- Toast --- */
+.toast-enter-active {
+  animation: toastIn 200ms ease;
+}
+.toast-leave-active {
+  animation: toastOut 300ms ease;
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes toastOut {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(16px); }
+}
+
+/* --- Loading spinner --- */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.spinner {
+  border: 2px solid #e5e7eb;
+  border-top-color: #111827;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  animation: spin 0.7s linear infinite;
+}
