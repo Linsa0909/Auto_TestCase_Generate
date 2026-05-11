@@ -1,7 +1,7 @@
 <template>
   <span
     :class="[
-      'inline-block px-2.5 py-0.5 text-[11px] tracking-wide rounded-md',
+      'inline-flex items-center px-1.5 py-[1px] text-[10px] tracking-wide rounded font-medium',
       typeClass,
     ]"
   >
@@ -18,11 +18,11 @@ const props = defineProps({
 
 const typeMap = {
   smoke: { label: '冒烟', class: 'bg-gray-900 text-white' },
-  func: { label: '功能', class: 'bg-gray-100 text-gray-600' },
-  edge: { label: '边界', class: 'bg-gray-50 text-gray-400' },
-  error: { label: '异常', class: 'bg-gray-50 text-gray-400 border border-gray-200' },
+  func: { label: '功能', class: 'bg-gray-100 text-gray-700' },
+  edge: { label: '边界', class: 'bg-gray-100 text-gray-600' },
+  error: { label: '异常', class: 'bg-gray-100 text-gray-600' },
 }
 
 const label = computed(() => typeMap[props.type]?.label || '功能')
-const typeClass = computed(() => typeMap[props.type]?.class || 'bg-gray-100 text-gray-600')
+const typeClass = computed(() => typeMap[props.type]?.class || 'bg-gray-100 text-gray-700')
 </script>

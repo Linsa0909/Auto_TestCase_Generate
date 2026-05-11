@@ -5,45 +5,53 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', 'Segoe UI', system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', system-ui, sans-serif;
+  line-height: 1.5;
+  font-size: 13px;
+  color: #111827;
 }
 
 ::selection {
-  background: #e5e7eb;
+  background: #d1d5db;
 }
 
 /* --- MinimalInput: bottom-border only --- */
 input[type="text"],
 input[type="password"],
-textarea,
-select {
+textarea {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
   background-image: none;
 }
 
-/* --- Smooth focus transitions --- */
+/* --- Smooth transitions on form elements --- */
 textarea,
 input[type="text"],
 input[type="password"] {
-  transition: border-color 200ms ease;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+/* --- Select: keep native appearance --- */
+select {
+  cursor: pointer;
 }
 
 /* --- Scrollbar (WebKit) --- */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: #d1d5db;
-  border-radius: 3px;
+  border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
@@ -51,18 +59,18 @@ input[type="password"] {
 
 /* --- Toast --- */
 .toast-enter-active {
-  animation: toastIn 200ms ease;
+  animation: toastIn 200ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .toast-leave-active {
-  animation: toastOut 300ms ease;
+  animation: toastOut 150ms ease;
 }
 @keyframes toastIn {
-  from { opacity: 0; transform: translateX(16px); }
-  to { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; transform: translateY(-6px) translateX(6px); }
+  to { opacity: 1; transform: translateY(0) translateX(0); }
 }
 @keyframes toastOut {
-  from { opacity: 1; transform: translateX(0); }
-  to { opacity: 0; transform: translateX(16px); }
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-4px); }
 }
 
 /* --- Loading spinner --- */
@@ -73,7 +81,16 @@ input[type="password"] {
   border: 2px solid #e5e7eb;
   border-top-color: #111827;
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   animation: spin 0.7s linear infinite;
+}
+
+/* --- Subtle fade-in for sections --- */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fadeUp 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }

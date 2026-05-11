@@ -1,13 +1,15 @@
 <template>
-  <header class="flex items-center justify-between px-10 py-7 border-b border-gray-100">
-    <h1 class="text-xl font-semibold tracking-tight">Test Case Intelligence</h1>
-    <div class="flex items-center gap-5">
-      <span class="text-xs text-gray-300 tracking-widest uppercase">v1.0</span>
+  <header class="flex items-center justify-between px-4 py-3">
+    <div>
+      <h1 class="text-[15px] font-semibold tracking-tight text-gray-900">Test Case Intelligence</h1>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="text-[10px] text-gray-300 tracking-[0.08em] uppercase font-medium">v1.0</span>
       <button
         @click="$emit('toggle-settings')"
-        class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+        class="w-7 h-7 flex items-center justify-center rounded-md hover:bg-gray-100 transition-colors active:scale-95"
       >
-        <Settings :class="['w-[18px] h-[18px] text-gray-400']" :stroke-width="1.5" />
+        <Settings class="w-[15px] h-[15px] text-gray-400 hover:text-gray-600" :stroke-width="1.5" />
       </button>
     </div>
   </header>

@@ -1,52 +1,52 @@
 <template>
-  <div v-if="cases.length" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+  <div v-if="cases.length" class="grid grid-cols-2 md:grid-cols-4 gap-2.5">
     <!-- Total -->
-    <div class="rounded-xl bg-gray-50 p-5">
-      <div class="text-[11px] text-gray-400 uppercase tracking-widest mb-3">总用例数</div>
-      <div class="text-2xl font-semibold">{{ cases.length }}</div>
+    <div class="rounded-md bg-gray-50 p-4 transition-colors hover:bg-gray-100">
+      <div class="text-[10px] text-gray-500 uppercase tracking-[0.08em] font-medium mb-2">总用例数</div>
+      <div class="text-2xl font-semibold tracking-tight text-gray-900 tabular-nums">{{ cases.length }}</div>
     </div>
 
     <!-- Type Distribution -->
-    <div class="rounded-xl bg-gray-50 p-5">
-      <div class="text-[11px] text-gray-400 uppercase tracking-widest mb-3">类型分布</div>
-      <div class="flex flex-col gap-2 mt-1">
+    <div class="rounded-md bg-gray-50 p-4 transition-colors hover:bg-gray-100">
+      <div class="text-[10px] text-gray-500 uppercase tracking-[0.08em] font-medium mb-2">类型分布</div>
+      <div class="flex flex-col gap-2 mt-0.5">
         <div v-for="item in typeStats" :key="item.label" class="flex items-center gap-2">
-          <span class="text-xs text-gray-500 w-8 shrink-0">{{ item.label }}</span>
-          <div class="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+          <span class="text-[11px] text-gray-600 w-7 shrink-0 font-medium">{{ item.label }}</span>
+          <div class="flex-1 h-[5px] bg-gray-200 rounded-full overflow-hidden">
             <div
-              class="h-full rounded-full transition-all duration-500"
+              class="h-full rounded-full transition-all duration-700 ease-out"
               :class="item.barClass"
               :style="{ width: item.pct + '%' }"
             />
           </div>
-          <span class="text-xs text-gray-400 w-6 text-right shrink-0">{{ item.count }}</span>
+          <span class="text-[11px] text-gray-500 w-4 text-right shrink-0 tabular-nums">{{ item.count }}</span>
         </div>
       </div>
     </div>
 
     <!-- Priority Distribution -->
-    <div class="rounded-xl bg-gray-50 p-5">
-      <div class="text-[11px] text-gray-400 uppercase tracking-widest mb-3">优先级分布</div>
-      <div class="flex flex-col gap-2 mt-1">
+    <div class="rounded-md bg-gray-50 p-4 transition-colors hover:bg-gray-100">
+      <div class="text-[10px] text-gray-500 uppercase tracking-[0.08em] font-medium mb-2">优先级分布</div>
+      <div class="flex flex-col gap-2 mt-0.5">
         <div v-for="item in priorityStats" :key="item.label" class="flex items-center gap-2">
-          <span class="text-xs text-gray-500 w-8 shrink-0">{{ item.label }}</span>
-          <div class="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+          <span class="text-[11px] text-gray-600 w-7 shrink-0 font-medium">{{ item.label }}</span>
+          <div class="flex-1 h-[5px] bg-gray-200 rounded-full overflow-hidden">
             <div
-              class="h-full rounded-full transition-all duration-500"
+              class="h-full rounded-full transition-all duration-700 ease-out"
               :class="item.barClass"
               :style="{ width: item.pct + '%' }"
             />
           </div>
-          <span class="text-xs text-gray-400 w-6 text-right shrink-0">{{ item.count }}</span>
+          <span class="text-[11px] text-gray-500 w-4 text-right shrink-0 tabular-nums">{{ item.count }}</span>
         </div>
       </div>
     </div>
 
     <!-- Steps -->
-    <div class="rounded-xl bg-gray-50 p-5">
-      <div class="text-[11px] text-gray-400 uppercase tracking-widest mb-3">步骤总数</div>
-      <div class="text-2xl font-semibold">{{ totalSteps }}</div>
-      <div class="text-xs text-gray-400 mt-1">平均 {{ avgSteps }} 步/用例</div>
+    <div class="rounded-md bg-gray-50 p-4 transition-colors hover:bg-gray-100">
+      <div class="text-[10px] text-gray-500 uppercase tracking-[0.08em] font-medium mb-2">步骤总数</div>
+      <div class="text-2xl font-semibold tracking-tight text-gray-900 tabular-nums">{{ totalSteps }}</div>
+      <div class="text-[11px] text-gray-500 mt-1">平均 {{ avgSteps }} 步/用例</div>
     </div>
   </div>
 </template>
@@ -67,7 +67,7 @@ const typeStats = computed(() => {
     map[t] = (map[t] || 0) + 1
   }
   const barClasses = {
-    '冒烟': 'bg-black',
+    '冒烟': 'bg-gray-900',
     '功能': 'bg-gray-500',
     '边界': 'bg-gray-300',
     '异常': 'bg-gray-400',
@@ -89,7 +89,7 @@ const priorityStats = computed(() => {
     if (map[p] !== undefined) map[p]++
   }
   return [
-    { label: 'L0', count: map.L0, pct: total.value ? (map.L0 / total.value * 100) : 0, barClass: 'bg-black' },
+    { label: 'L0', count: map.L0, pct: total.value ? (map.L0 / total.value * 100) : 0, barClass: 'bg-gray-900' },
     { label: 'L1', count: map.L1, pct: total.value ? (map.L1 / total.value * 100) : 0, barClass: 'bg-gray-400' },
     { label: 'L2', count: map.L2, pct: total.value ? (map.L2 / total.value * 100) : 0, barClass: 'bg-gray-200' },
   ]
