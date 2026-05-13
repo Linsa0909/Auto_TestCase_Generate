@@ -1,0 +1,2054 @@
+- name: ht8y_create_test_requirement_user_management_group
+  notes: 创建测试需求分组-用户管理模块
+  url: /api/test/group/createTestGroup
+  method: post
+  headers: $devops_header_with_token
+  data:
+    acceptformValues:
+      name: 用户管理模块
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    name: 用户管理模块
+    type: testStory
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_requirement_user_management_group
+  notes: 获取用户管理模块需求组ID
+  url: /api/test/group/queryTestGroupTree
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    needIssue: false
+    type: testStory
+  interval_time: null
+  depend_cases:
+  - login
+  save_result:
+    ID: <<$..data[?(@.title=='用户管理模块')].id>>
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_requirement_position_management_group
+  notes: 创建测试需求分组-岗位管理模块
+  url: /api/test/group/createTestGroup
+  method: post
+  headers: $devops_header_with_token
+  data:
+    acceptformValues:
+      name: 岗位管理模块
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    name: 岗位管理模块
+    type: testStory
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_requirement_position_management_group
+  notes: 获取岗位管理模块需求组ID
+  url: /api/test/group/queryTestGroupTree
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    needIssue: false
+    type: testStory
+  interval_time: null
+  depend_cases:
+  - login
+  save_result:
+    ID: <<$..data[?(@.title=='岗位管理模块')].id>>
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_requirement_user_query
+  notes: 创建用户查询接口测试需求
+  url: /api/test/story/createTestStory
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    description: '<p style="text-align: start; line-height: 1.5;">接口名称：userQuery</p><p
+      style="text-align: start; line-height: 1.5;">接口功能：接收客户端传入的查询条件，查询符合条件的用户信息，返回分页查询结果及总条数。</p><p
+      style="text-align: start; line-height: 1.5;">输入参数：username（用户名，可选）、userId（用户ID，可选）、deptId（部门ID，可选）、postId（岗位ID，可选）、roleId（角色ID，可选）、status（用户状态，可选）、pageNum（页码，必填）、pageSize（每页条数，必填）。</p><p
+      style="text-align: start; line-height: 1.5;">输出参数：code（返回码，200表示成功，非200表示失败）、msg（返回信息）、data（分页数据，包含list（用户列表，每条含用户ID、用户名、姓名等核心信息）、total（总条数）、pageNum、pageSize）。</p><p
+      style="text-align: start; line-height: 1.5;">接口类型：HTTP GET</p><p style="text-align:
+      start; line-height: 1.5;">接口URL：/api/system/user/list</p><p style="text-align: start;
+      line-height: 1.5;">约束条件：仅管理员角色可调用，查询条件需符合规范，pageNum、pageSize为正整数；无查询结果时，data.list为空，data.total为0。</p>'
+    editionId: <<ht8y:VersionSprint:ht8y_get_20_version:$.ID>>
+    groupId: <<ht8y:test:ht8y_get_test_requirement_user_management_group:$.ID>>
+    principalId: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    priority: 3
+    title: 用户查询接口
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_requirement_user_query
+  notes: 获取用户查询接口测试需求ID
+  url: /api/test/story/getTestStoryList
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 10
+  interval_time: null
+  depend_cases:
+  - login
+  save_result:
+    ID: <<$..items[?(@.title=='用户查询接口')].id>>
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_requirement_user_add
+  notes: 创建用户新增接口测试需求
+  url: /api/test/story/createTestStory
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    description: '<p style="text-align: start; line-height: 1.5;">接口名称：userAdd</p><p style="text-align:
+      start; line-height: 1.5;">接口功能：接收客户端传入的新增用户信息，验证通过后保存用户数据及关联关系，返回操作结果。</p><p style="text-align:
+      start; line-height: 1.5;">输入参数：username（用户名，必填）、name（姓名，必填）、password（密码，必填）、confirmPassword（确认密码，必填）、deptId（部门ID，必填）、postIds（岗位ID列表，必填）、roleIds（角色ID列表，必填）、phone（手机号码，可选）、email（邮箱，可选）、status（用户状态，可选，默认1启用）。</p><p
+      style="text-align: start; line-height: 1.5;">输出参数：code（返回码，200表示成功，非200表示失败）、msg（返回信息，失败时说明具体原因）、data（新增用户ID，成功时返回）。</p><p
+      style="text-align: start; line-height: 1.5;">接口类型：HTTP POST</p><p style="text-align:
+      start; line-height: 1.5;">接口URL：/api/system/user/add</p><p style="text-align: start;
+      line-height: 1.5;">约束条件：仅管理员角色可调用，输入参数需符合验证规则；用户名不可重复，密码与确认密码需一致；部门、岗位、角色ID需存在于系统中；密码需进行加密存储。</p>'
+    editionId: <<ht8y:VersionSprint:ht8y_get_20_version:$.ID>>
+    groupId: <<ht8y:test:ht8y_get_test_requirement_user_management_group:$.ID>>
+    principalId: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    priority: 3
+    title: 用户新增接口
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_requirement_user_add
+  notes: 获取用户新增接口接口测试需求ID
+  url: /api/test/story/getTestStoryList
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 10
+  interval_time: null
+  depend_cases:
+  - login
+  save_result:
+    ID: <<$..items[?(@.title=='用户新增接口')].id>>
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_requirement_user_edit
+  notes: 创建用户编辑接口测试需求
+  url: /api/test/story/createTestStory
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    description: '<p style="text-align: start; line-height: 1.5;">接口名称：userEdit</p><p
+      style="text-align: start; line-height: 1.5;">接口功能：接收客户端传入的编辑用户信息，验证通过后更新用户数据及关联关系，返回操作结果。</p><p
+      style="text-align: start; line-height: 1.5;">输入参数：userId（用户ID，必填）、name（姓名，必填）、deptId（部门ID，必填）、postIds（岗位ID列表，必填）、roleIds（角色ID列表，必填）、phone（手机号码，可选）、email（邮箱，可选）、status（用户状态，可选）、password（密码，可选，非空时需输入确认密码）、confirmPassword（确认密码，可选，密码非空时必填）。</p><p
+      style="text-align: start; line-height: 1.5;">输出参数：code（返回码，200表示成功，非200表示失败）、msg（返回信息，失败时说明具体原因）。</p><p
+      style="text-align: start; line-height: 1.5;">接口类型：HTTP PUT</p><p style="text-align:
+      start; line-height: 1.5;">接口URL：/api/system/user/edit</p><p style="text-align: start;
+      line-height: 1.5;">约束条件：仅管理员角色可调用，输入参数需符合验证规则；用户ID需存在于系统中；当前登录用户不可编辑自身状态及关联关系；密码非空时，需与确认密码一致并加密更新。</p>'
+    editionId: <<ht8y:VersionSprint:ht8y_get_20_version:$.ID>>
+    groupId: <<ht8y:test:ht8y_get_test_requirement_user_management_group:$.ID>>
+    principalId: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    priority: 3
+    title: 用户编辑接口
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_requirement_user_edit
+  notes: 获取用户编辑接口接口测试需求ID
+  url: /api/test/story/getTestStoryList
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 10
+  interval_time: null
+  depend_cases:
+  - login
+  save_result:
+    ID: <<$..items[?(@.title=='用户编辑接口')].id>>
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_requirement_user_delete
+  notes: 创建用户删除接口测试需求
+  url: /api/test/story/createTestStory
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    description: '<p style="text-align: start; line-height: 1.5;">接口名称：userDelete</p><p
+      style="text-align: start; line-height: 1.5;">接口功能：接收客户端传入的用户ID（单条或多条），验证通过后删除用户数据及关联关系，返回操作结果。</p><p
+      style="text-align: start; line-height: 1.5;">输入参数：userIds（用户ID列表，必填）。</p><p style="text-align:
+      start; line-height: 1.5;">输出参数：code（返回码，200表示成功，非200表示失败）、msg（返回信息，失败时说明具体原因）。</p><p
+      style="text-align: start; line-height: 1.5;">接口类型：HTTP DELETE</p><p style="text-align:
+      start; line-height: 1.5;">接口URL：/api/system/user/remove</p><p style="text-align:
+      start; line-height: 1.5;">约束条件：仅管理员角色可调用；用户ID需存在于系统中；当前登录用户、系统内置管理员不可删除；存在关联数据的用户不可删除。</p>'
+    editionId: <<ht8y:VersionSprint:ht8y_get_20_version:$.ID>>
+    groupId: <<ht8y:test:ht8y_get_test_requirement_user_management_group:$.ID>>
+    principalId: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    priority: 3
+    title: 用户删除接口
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_requirement_user_delete
+  notes: 获取用户删除接口接口测试需求ID
+  url: /api/test/story/getTestStoryList
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 10
+  interval_time: null
+  depend_cases:
+  - login
+  save_result:
+    ID: <<$..items[?(@.title=='用户删除接口')].id>>
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_requirement_user_reset_secret
+  notes: 创建用户密码重置接口测试需求
+  url: /api/test/story/createTestStory
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    description: '<p style="text-align: start; line-height: 1.5;">接口名称：userResetPwd</p><p
+      style="text-align: start; line-height: 1.5;">接口功能：接收客户端传入的用户ID（单条或多条），将用户密码重置为系统默认密码，返回操作结果。</p><p
+      style="text-align: start; line-height: 1.5;">输入参数：userIds（用户ID列表，必填）。</p><p style="text-align:
+      start; line-height: 1.5;">输出参数：code（返回码，200表示成功，非200表示失败）、msg（返回信息，失败时说明具体原因）、defaultPwd（系统默认密码，成功时返回，用于提示管理员）。</p><p
+      style="text-align: start; line-height: 1.5;">接口类型：HTTP PUT</p><p style="text-align:
+      start; line-height: 1.5;">接口URL：/api/system/user/resetPwd</p><p style="text-align:
+      start; line-height: 1.5;">约束条件：仅管理员角色可调用；用户ID需存在于系统中；默认密码需进行加密存储，重置后记录操作日志。</p>'
+    editionId: <<ht8y:VersionSprint:ht8y_get_20_version:$.ID>>
+    groupId: <<ht8y:test:ht8y_get_test_requirement_user_management_group:$.ID>>
+    principalId: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    priority: 3
+    title: 用户密码重置接口
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_requirement_user_reset_secret
+  notes: 获取用户密码重置接口测试需求ID
+  url: /api/test/story/getTestStoryList
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 10
+  interval_time: null
+  depend_cases:
+  - login
+  save_result:
+    ID: <<$..items[?(@.title=='用户密码重置接口')].id>>
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_requirement_user_status_change
+  notes: 创建用户状态切换接口测试需求
+  url: /api/test/story/createTestStory
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    description: '<p style="text-align: start; line-height: 1.5;">接口名称：userChangeStatus</p><p
+      style="text-align: start; line-height: 1.5;">接口功能：接收客户端传入的用户ID及目标状态，验证通过后切换用户状态，返回操作结果。</p><p
+      style="text-align: start; line-height: 1.5;">输入参数：userId（用户ID，必填）、status（目标状态，必填，0禁用、1启用）。</p><p
+      style="text-align: start; line-height: 1.5;">输出参数：code（返回码，200表示成功，非200表示失败）、msg（返回信息，失败时说明具体原因）。</p><p
+      style="text-align: start; line-height: 1.5;">接口类型：HTTP PUT</p><p style="text-align:
+      start; line-height: 1.5;">接口URL：/api/system/user/changeStatus</p><p style="text-align:
+      start; line-height: 1.5;">约束条件：仅管理员角色可调用；用户ID需存在于系统中；当前登录用户、系统内置管理员不可禁用；状态切换后，同步更新用户登录权限，已登录禁用用户强制下线。</p>'
+    editionId: <<ht8y:VersionSprint:ht8y_get_20_version:$.ID>>
+    groupId: <<ht8y:test:ht8y_get_test_requirement_user_management_group:$.ID>>
+    principalId: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    priority: 3
+    title: 用户状态切换接口
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_requirement_user_status_change
+  notes: 获取用户状态切换接口测试需求ID
+  url: /api/test/story/getTestStoryList
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 10
+  interval_time: null
+  depend_cases:
+  - login
+  save_result:
+    ID: <<$..items[?(@.title=='用户状态切换接口')].id>>
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_requirement_position_query
+  notes: 创建岗位查询接口测试需求
+  url: /api/test/story/createTestStory
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    description: '<p style="text-align: start; line-height: 1.5;">接口名称：postQuery</p><p
+      style="text-align: start; line-height: 1.5;">接口功能：接收客户端传入的查询条件，查询符合条件的岗位信息，返回分页查询结果及总条数。</p><p
+      style="text-align: start; line-height: 1.5;">输入参数：postName（岗位名称，可选）、postCode（岗位编码，可选）、deptId（部门ID，可选）、status（岗位状态，可选）、pageNum（页码，必填）、pageSize（每页条数，必填）。</p><p
+      style="text-align: start; line-height: 1.5;">输出参数：code（返回码，200表示成功，非200表示失败）、msg（返回信息）、data（分页数据，包含list（岗位列表）、total（总条数）、pageNum、pageSize）。</p><p
+      style="text-align: start; line-height: 1.5;">接口类型：HTTP GET</p><p style="text-align:
+      start; line-height: 1.5;">接口URL：/api/system/post/list</p><p style="text-align: start;
+      line-height: 1.5;">约束条件：仅管理员角色可调用；查询条件需符合规范，pageNum、pageSize为正整数；无查询结果时，data.list为空，data.total为0。</p>'
+    editionId: <<ht8y:VersionSprint:ht8y_get_20_version:$.ID>>
+    groupId: <<ht8y:test:ht8y_get_test_requirement_position_management_group:$.ID>>
+    principalId: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    priority: 3
+    title: 岗位查询接口
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_requirement_position_query
+  notes: 获取岗位查询接口测试需求ID
+  url: /api/test/story/getTestStoryList
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 10
+  interval_time: null
+  depend_cases:
+  - login
+  save_result:
+    ID: <<$..items[?(@.title=='岗位查询接口')].id>>
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_requirement_position_add
+  notes: 创建岗位新增接口测试需求
+  url: /api/test/story/createTestStory
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    description: '<p style="text-align: start; line-height: 1.5;">接口名称：postAdd</p><p style="text-align:
+      start; line-height: 1.5;">接口功能：接收客户端传入的新增岗位信息，验证通过后保存岗位数据及关联关系，返回操作结果。</p><p style="text-align:
+      start; line-height: 1.5;">输入参数：postName（岗位名称，必填）、postCode（岗位编码，必填）、deptId（部门ID，必填）、sort（排序，可选，默认0）、status（岗位状态，可选，默认1启用）、remark（岗位描述，可选）。</p><p
+      style="text-align: start; line-height: 1.5;">输出参数：code（返回码，200表示成功，非200表示失败）、msg（返回信息，失败时说明具体原因）、data（新增岗位ID，成功时返回）。</p><p
+      style="text-align: start; line-height: 1.5;">接口类型：HTTP POST</p><p style="text-align:
+      start; line-height: 1.5;">接口URL：/api/system/post/add</p><p style="text-align: start;
+      line-height: 1.5;">约束条件：仅管理员角色可调用；输入参数需符合验证规则；岗位编码、岗位名称不可重复；部门ID需存在于系统中。</p>'
+    editionId: <<ht8y:VersionSprint:ht8y_get_20_version:$.ID>>
+    groupId: <<ht8y:test:ht8y_get_test_requirement_position_management_group:$.ID>>
+    principalId: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    priority: 3
+    title: 岗位新增接口
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_requirement_position_add
+  notes: 获取岗位新增接口测试需求ID
+  url: /api/test/story/getTestStoryList
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 10
+  interval_time: null
+  depend_cases:
+  - login
+  save_result:
+    ID: <<$..items[?(@.title=='岗位新增接口')].id>>
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_requirement_position_edit
+  notes: 创建岗位编辑接口测试需求
+  url: /api/test/story/createTestStory
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    description: '<p style="text-align: start; line-height: 1.5;">接口名称：postEdit</p><p
+      style="text-align: start; line-height: 1.5;">接口功能：接收客户端传入的编辑岗位信息，验证通过后更新岗位数据及关联关系，返回操作结果。</p><p
+      style="text-align: start; line-height: 1.5;">输入参数：postId（岗位ID，必填）、postName（岗位名称，必填）、postCode（岗位编码，不可编辑）、deptId（部门ID，必填）、sort（排序，可选）、status（岗位状态，可选）、remark（岗位描述，可选）。</p><p
+      style="text-align: start; line-height: 1.5;">输出参数：code（返回码，200表示成功，非200表示失败）、msg（返回信息，失败时说明具体原因）。</p><p
+      style="text-align: start; line-height: 1.5;">接口类型：HTTP PUT</p><p style="text-align:
+      start; line-height: 1.5;">接口URL：/api/system/post/edit</p><p style="text-align: start;
+      line-height: 1.5;">约束条件：仅管理员角色可调用；输入参数需符合验证规则；岗位ID需存在于系统中；岗位名称不可重复；部门ID需存在于系统中。</p><p
+      style="text-align: start; line-height: 1.5;">接口功能：接收客户端传入的编辑岗位信息，验证通过后更新岗位数据及关联关系，返回操作结果。</p>'
+    editionId: <<ht8y:VersionSprint:ht8y_get_20_version:$.ID>>
+    groupId: <<ht8y:test:ht8y_get_test_requirement_position_management_group:$.ID>>
+    principalId: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    priority: 3
+    title: 岗位编辑接口
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_requirement_position_edit
+  notes: 获取岗位编辑接口测试需求ID
+  url: /api/test/story/getTestStoryList
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 10
+  interval_time: null
+  depend_cases:
+  - login
+  save_result:
+    ID: <<$..items[?(@.title=='岗位编辑接口')].id>>
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_api_group
+  notes: 创建接口测试组
+  url: /api/test/group/createTestGroup
+  method: post
+  headers: $devops_header_with_token
+  data:
+    acceptformValues:
+      name: 接口测试
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    name: 接口测试
+    type: testcase
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_api_group
+  notes: 获取接口测试组ID
+  url: /api/test/group/queryTestGroupTree
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    needIssue: false
+    testUsedPlace: case
+    type: testCase
+  interval_time: null
+  depend_cases:
+  - login
+  save_result:
+    ID: <<$..data[?(@.title=='接口测试')].id>>
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_function_group
+  notes: 创建功能测试组
+  url: /api/test/group/createTestGroup
+  method: post
+  headers: $devops_header_with_token
+  data:
+    acceptformValues:
+      name: 功能测试
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    name: 功能测试
+    type: testCase
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_function_group
+  notes: 获取功能测试组ID
+  url: /api/test/group/queryTestGroupTree
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    needIssue: false
+    testUsedPlace: case
+    type: testCase
+  interval_time: null
+  depend_cases:
+  - login
+  save_result:
+    ID: <<$..data[?(@.title=='功能测试')].id>>
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_user_management_group
+  notes: 创建用户管理模块接口组
+  url: /api/test/group/createTestGroup
+  method: post
+  headers: $devops_header_with_token
+  data:
+    acceptformValues:
+      name: 用户管理模块接口
+      parentId: <<ht8y:test:ht8y_get_test_case_function_group:$.ID>>
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    parentId: <<ht8y:test:ht8y_get_test_case_function_group:$.ID>>
+    name: 用户管理模块接口
+    type: testCase
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_user_management_group
+  notes: 获取用户管理模块接口组ID
+  url: /api/test/group/queryTestGroupTree
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    needIssue: false
+    testUsedPlace: case
+    type: testCase
+  interval_time: null
+  depend_cases:
+  - login
+  save_result:
+    ID: <<$..children[?(@.title=='用户管理模块接口')].id>>
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_position_management_group
+  notes: 创建岗位管理模块接口组
+  url: /api/test/group/createTestGroup
+  method: post
+  headers: $devops_header_with_token
+  data:
+    acceptformValues:
+      name: 岗位管理模块接口
+      parentId: <<ht8y:test:ht8y_get_test_case_function_group:$.ID>>
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    parentId: <<ht8y:test:ht8y_get_test_case_function_group:$.ID>>
+    name: 岗位管理模块接口
+    type: testCase
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_position_management_group
+  notes: 获取岗位管理模块接口组ID
+  url: /api/test/group/queryTestGroupTree
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    needIssue: false
+    testUsedPlace: case
+    type: testCase
+  interval_time: null
+  depend_cases:
+  - login
+  save_result:
+    ID: <<$..children[?(@.title=='岗位管理模块接口')].id>>
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_user_status_change
+  notes: 创建测试用例-用户状态切换
+  url: /api/test/case/createTestCase
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    importance: L0
+    maintenance: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    steps:
+    - description: 用户状态切换
+      expectResult: 用户状态切换成功
+    testGroupId: <<ht8y:test:ht8y_get_test_case_user_management_group:$.ID>>
+    title: 用户状态切换
+    type: manual
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_user_status_change
+  notes: 获取测试用例ID
+  url: /api/test/case/getTestCasePage
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 50
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='用户状态切换')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_user_reset_secret
+  notes: 创建测试用例-用户密码重置
+  url: /api/test/case/createTestCase
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    importance: L0
+    maintenance: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    steps:
+    - description: 用户密码重置
+      expectResult: 用户密码重置成功
+    testGroupId: <<ht8y:test:ht8y_get_test_case_user_management_group:$.ID>>
+    title: 用户密码重置
+    type: manual
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_user_reset_secret
+  notes: 获取测试用例ID
+  url: /api/test/case/getTestCasePage
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 50
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='用户密码重置')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_user_delete
+  notes: 创建测试用例-用户删除
+  url: /api/test/case/createTestCase
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    importance: L0
+    maintenance: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    steps:
+    - description: 用户删除
+      expectResult: 用户删除成功
+    testGroupId: <<ht8y:test:ht8y_get_test_case_user_management_group:$.ID>>
+    title: 用户删除
+    type: manual
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_user_delete
+  notes: 获取测试用例ID
+  url: /api/test/case/getTestCasePage
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 50
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='用户删除')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_user_edit
+  notes: 创建测试用例-用户编辑
+  url: /api/test/case/createTestCase
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    importance: L0
+    maintenance: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    steps:
+    - description: 用户编辑
+      expectResult: 用户编辑成功
+    testGroupId: <<ht8y:test:ht8y_get_test_case_user_management_group:$.ID>>
+    title: 用户编辑
+    type: manual
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_user_edit
+  notes: 获取测试用例ID
+  url: /api/test/case/getTestCasePage
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 50
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='用户编辑')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_user_add
+  notes: 创建测试用例-用户新增
+  url: /api/test/case/createTestCase
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    importance: L0
+    maintenance: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    steps:
+    - description: 用户新增
+      expectResult: 用户新增成功
+    testGroupId: <<ht8y:test:ht8y_get_test_case_user_management_group:$.ID>>
+    title: 用户新增
+    type: manual
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_user_add
+  notes: 获取测试用例ID
+  url: /api/test/case/getTestCasePage
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 50
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='用户新增')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_user_query
+  notes: 创建测试用例-用户查询
+  url: /api/test/case/createTestCase
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    importance: L0
+    maintenance: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    steps:
+    - description: 用户查询
+      expectResult: 用户查询成功
+    testGroupId: <<ht8y:test:ht8y_get_test_case_user_management_group:$.ID>>
+    title: 用户查询
+    type: manual
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_user_query
+  notes: 获取测试用例ID
+  url: /api/test/case/getTestCasePage
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 50
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='用户查询')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_position_query
+  notes: 创建测试用例-岗位查询
+  url: /api/test/case/createTestCase
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    importance: L0
+    maintenance: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    steps:
+    - description: 岗位查询
+      expectResult: 岗位查询成功
+    testGroupId: <<ht8y:test:ht8y_get_test_case_position_management_group:$.ID>>
+    title: 岗位查询
+    type: manual
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_position_query
+  notes: 获取测试用例ID
+  url: /api/test/case/getTestCasePage
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 50
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='岗位查询')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_position_add
+  notes: 创建测试用例-岗位新增
+  url: /api/test/case/createTestCase
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    importance: L0
+    maintenance: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    steps:
+    - description: 岗位新增
+      expectResult: 岗位新增成功
+    testGroupId: <<ht8y:test:ht8y_get_test_case_position_management_group:$.ID>>
+    title: 岗位新增
+    type: manual
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_position_add
+  notes: 获取测试用例ID
+  url: /api/test/case/getTestCasePage
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 50
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='岗位新增')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_position_edit
+  notes: 创建测试用例-岗位编辑
+  url: /api/test/case/createTestCase
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    importance: L0
+    maintenance: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    steps:
+    - description: 岗位编辑
+      expectResult: 岗位编辑成功
+    testGroupId: <<ht8y:test:ht8y_get_test_case_position_management_group:$.ID>>
+    title: 岗位编辑
+    type: manual
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_position_edit
+  notes: 获取测试用例ID
+  url: /api/test/case/getTestCasePage
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 50
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='岗位编辑')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_dict_none
+  notes: 创建测试用例-查询包含None作为值的字典
+  url: /api/test/case/createTestCase
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    importance: L0
+    maintenance: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    preconditions: 系统已启动并初始化了一个包含None作为值的字典
+    testGroupId: ''
+    steps:
+    - description: 定义一个包含None作为值的字典
+      expectResult: 字典初始化成功
+    - description: 使用包含None作为值的键进行查询
+      expectResult: 返回None
+    title: 查询包含None作为值的字典
+    type: manual
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_dict_none
+  notes: 获取测试用例ID
+  url: /api/test/case/getTestCasePage
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 50
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='查询包含None作为值的字典')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_dict_diction
+  notes: 创建测试用例-查询包含字典作为值的字典
+  url: /api/test/case/createTestCase
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    importance: L0
+    maintenance: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    preconditions: 系统已启动并初始化了一个包含字典作为值的字典
+    testGroupId: ''
+    steps:
+    - description: 定义一个包含字典作为值的字典
+      expectResult: 字典初始化成功
+    - description: 使用包含字典作为值的键进行查询
+      expectResult: 返回字典
+    title: 查询包含字典作为值的字典
+    type: manual
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_dict_diction
+  notes: 获取测试用例ID
+  url: /api/test/case/getTestCasePage
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 50
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='查询包含字典作为值的字典')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_dict_set
+  notes: 创建测试用例-查询包含集合作为值的字典
+  url: /api/test/case/createTestCase
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    importance: L0
+    maintenance: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    preconditions: 系统已启动并初始化了一个包含集合作为值的字典
+    testGroupId: ''
+    steps:
+    - description: 定义一个包含集合作为值的字典
+      expectResult: 字典初始化成功
+    - description: 使用包含集合作为值的键进行查询
+      expectResult: 返回集合
+    title: 查询包含集合作为值的字典
+    type: manual
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_dict_set
+  notes: 获取测试用例ID
+  url: /api/test/case/getTestCasePage
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 50
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='查询包含集合作为值的字典')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_dict_tuple
+  notes: 创建测试用例-查询包含元组作为值的字典
+  url: /api/test/case/createTestCase
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    importance: L0
+    maintenance: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    preconditions: 系统已启动并初始化了一个包含元组作为值的字典
+    testGroupId: ''
+    steps:
+    - description: 定义一个包含元组作为值的字典
+      expectResult: 字典初始化成功
+    - description: 使用包含元组作为值的键进行查询
+      expectResult: 返回成功
+    title: 查询包含元组作为值的字典
+    type: manual
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_dict_tuple
+  notes: 获取测试用例ID
+  url: /api/test/case/getTestCasePage
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 50
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='查询包含元组作为值的字典')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_dict_list
+  notes: 创建测试用例-查询包含列表作为值的字典
+  url: /api/test/case/createTestCase
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    importance: L0
+    maintenance: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    preconditions: 系统已启动并初始化了一个包含列表作为值的字典
+    testGroupId: ''
+    steps:
+    - description: 定义一个包含列表作为值的字典
+      expectResult: 字典初始化成功
+    - description: 使用包含列表作为值的键进行查询
+      expectResult: 返回成功
+    title: 查询包含列表作为值的字典
+    type: manual
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_dict_list
+  notes: 获取测试用例ID
+  url: /api/test/case/getTestCasePage
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 50
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='查询包含列表作为值的字典')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_dict_nest
+  notes: 创建测试用例-查询包含嵌套字典的字典
+  url: /api/test/case/createTestCase
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    importance: L0
+    maintenance: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    preconditions: 系统已启动并初始化了一个包含嵌套字典的字典
+    testGroupId: ''
+    steps:
+    - description: 定义一个包含嵌套字典的字典
+      expectResult: 字典初始化成功
+    - description: 使用嵌套字典中的有效键进行查询
+      expectResult: 返回成功
+    title: 查询包含嵌套字典的字典
+    type: manual
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_dict_nest
+  notes: 获取测试用例ID
+  url: /api/test/case/getTestCasePage
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 50
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='查询包含嵌套字典的字典')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_dict_bool
+  notes: 创建测试用例-查询包含布尔值的字典
+  url: /api/test/case/createTestCase
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    importance: L0
+    maintenance: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    preconditions: 系统已启动并初始化了一个包含布尔值键值对的字典
+    testGroupId: ''
+    steps:
+    - description: 定义一个包含布尔值的字典
+      expectResult: 字典初始化成功
+    - description: 使用布尔值键进行查询
+      expectResult: 返回成功
+    title: 查询包含布尔值键的字典
+    type: manual
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_dict_bool
+  notes: 获取测试用例ID
+  url: /api/test/case/getTestCasePage
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 50
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='查询包含布尔值键的字典')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_dict_number
+  notes: 创建测试用例-查询包含数字键的字典
+  url: /api/test/case/createTestCase
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    importance: L0
+    maintenance: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    preconditions: 系统已启动并初始化了一个包含数字键值对的字典
+    testGroupId: ''
+    steps:
+    - description: 定义一个包含数字键值对的字典
+      expectResult: 字典初始化成功
+    - description: 使用数字键进行查询
+      expectResult: 返回成功
+    title: 查询包含数字键的字典
+    type: manual
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_dict_number
+  notes: 获取测试用例ID
+  url: /api/test/case/getTestCasePage
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 50
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='查询包含数字键的字典')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_dict_sp
+  notes: 创建测试用例-查询包含特殊字符的键
+  url: /api/test/case/createTestCase
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    importance: L0
+    maintenance: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    preconditions: 系统已启动并初始化了一个包含特殊字符键值对的字典
+    testGroupId: ''
+    steps:
+    - description: 定义一个包含特殊字符键值对的字典
+      expectResult: 字典初始化成功
+    - description: 使用包含特殊字符的键进行查询
+      expectResult: 返回成功
+    title: 查询包含特殊字符的键
+    type: manual
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_dict_sp
+  notes: 获取测试用例ID
+  url: /api/test/case/getTestCasePage
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 50
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='查询包含特殊字符的键')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_dict_blank
+  notes: 创建测试用例-查询空字典
+  url: /api/test/case/createTestCase
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    importance: L0
+    maintenance: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    preconditions: 系统已启动并初始化了一个空字典
+    testGroupId: ''
+    steps:
+    - description: 定义一个空字典
+      expectResult: 字典初始化成功
+    - description: 使用有效键进行查询
+      expectResult: 返回None或预设的默认值
+    title: 查询空字典
+    type: manual
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_dict_blank
+  notes: 获取测试用例ID
+  url: /api/test/case/getTestCasePage
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 50
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='查询空字典')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_dict_not_exist
+  notes: 创建测试用例-通过不存在的键查询字典中的值
+  url: /api/test/case/createTestCase
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    importance: L0
+    maintenance: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    preconditions: 系统已启动并初始化了一个包含有效键值对的字典
+    testGroupId: ''
+    steps:
+    - description: 定义一个包含有效键值对的字典
+      expectResult: 字典初始化成功
+    - description: 使用不存在的键进行查询
+      expectResult: 返回None或预设的默认值
+    title: 通过不存在的键查询字典中的值
+    type: manual
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_dict_not_exist
+  notes: 获取测试用例ID
+  url: /api/test/case/getTestCasePage
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 50
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='通过不存在的键查询字典中的值')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_case_dict_exist
+  notes: 创建测试用例-通过有效键查询字典中的值
+  url: /api/test/case/createTestCase
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    importance: L0
+    maintenance: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    preconditions: 系统已启动并初始化了一个包含有效键值对的字典
+    testGroupId: ''
+    steps:
+    - description: 定义一个包含有效键值对的字典
+      expectResult: 字典初始化成功
+    - description: 使用有效键进行查询
+      expectResult: 返回成功
+    title: 通过有效键查询字典中的值
+    type: manual
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_case_dict_exist
+  notes: 获取测试用例ID
+  url: /api/test/case/getTestCasePage
+  method: post
+  headers: $devops_header_with_token
+  data:
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+    page:
+      pageNo: 1
+      pageSize: 50
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='通过有效键查询字典中的值')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_test_case_related_requirement
+  notes: 未分组的测试用例，关联至需求
+  url: /api/test/case/bindTestCaseAndIssue
+  method: post
+  headers: $devops_header_with_token
+  data:
+    issueId:
+      - <<ht8y:requirement:ht8y_get_requirement_dict_func_all_query:$.ID>>
+    testCaseIds:
+      - <<ht8y:test:ht8y_get_test_case_dict_none:$.ID>>
+      - <<ht8y:test:ht8y_get_test_case_dict_diction:$.ID>>
+      - <<ht8y:test:ht8y_get_test_case_dict_set:$.ID>>
+      - <<ht8y:test:ht8y_get_test_case_dict_tuple:$.ID>>
+      - <<ht8y:test:ht8y_get_test_case_dict_list:$.ID>>
+      - <<ht8y:test:ht8y_get_test_case_dict_nest:$.ID>>
+      - <<ht8y:test:ht8y_get_test_case_dict_bool:$.ID>>
+      - <<ht8y:test:ht8y_get_test_case_dict_number:$.ID>>
+      - <<ht8y:test:ht8y_get_test_case_dict_sp:$.ID>>
+      - <<ht8y:test:ht8y_get_test_case_dict_blank:$.ID>>
+      - <<ht8y:test:ht8y_get_test_case_dict_not_exist:$.ID>>
+      - <<ht8y:test:ht8y_get_test_case_dict_exist:$.ID>>
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_plan_sprint002
+  notes: 创建测试计划
+  url: /api/test/bizplan/createBizPlan
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    editionId: <<ht8y:VersionSprint:ht8y_get_20_version:$.ID>>
+    endDate: $Sprint2EndDate
+    principalId: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    sprintId: <<ht8y:VersionSprint:ht8y_get_002_sprint:$.ID>>
+    startDate: $Sprint2StartDate
+    title: sprint002迭代功能测试
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_plan_sprint002
+  notes: 获取测试计划ID
+  url: /api/test/bizplan/getBizPlanList
+  method: post
+  headers: $devops_header_with_token
+  data:
+    page:
+      pageNo: 1
+      pageSize: 10
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='sprint002迭代功能测试')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_plan_autotest
+  notes: 创建测试计划
+  url: /api/test/bizplan/createBizPlan
+  method: post
+  headers: $devops_header_with_token
+  data:
+    bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+    bizType: product
+    principalId: <<ht8y:PlatformSetting:ht8y_get_tester:$.ID>>
+    title: 自动化回归测试计划
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_plan_autotest
+  notes: 获取测试计划ID
+  url: /api/test/bizplan/getBizPlanList
+  method: post
+  headers: $devops_header_with_token
+  data:
+    page:
+      pageNo: 1
+      pageSize: 10
+    obj:
+      bizId: <<ht8y:product:ht8y_get_backend_product:$.ID>>
+      bizType: product
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..items[?(@.title=='自动化回归测试计划')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_set_case_to_test_plan_sprint002
+  notes: 将测试用例添加至测试计划
+  url: /api/test/bizplan/setTestCaseOfPlan
+  method: post
+  headers: $devops_header_with_token
+  data:
+    testBizPlanId: <<ht8y:test:ht8y_get_test_plan_sprint002:$.ID>>
+    testCaseIds:
+    - <<ht8y:test:ht8y_get_test_case_user_status_change:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_user_reset_secret:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_user_delete:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_user_edit:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_user_add:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_user_query:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_position_query:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_position_add:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_position_edit:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_none:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_diction:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_set:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_tuple:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_list:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_nest:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_bool:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_number:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_sp:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_blank:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_not_exist:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_exist:$.ID>>
+    addRelationTestStory: true
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_set_case_to_test_plan_autotest
+  notes: 将测试用例添加至测试计划
+  url: /api/test/bizplan/setTestCaseOfPlan
+  method: post
+  headers: $devops_header_with_token
+  data:
+    testBizPlanId: <<ht8y:test:ht8y_get_test_plan_autotest:$.ID>>
+    testCaseIds:
+    - <<ht8y:testsuite:ht8y_get_test_case_autotest:$.ID1>>
+    - <<ht8y:testsuite:ht8y_get_test_case_autotest:$.ID2>>
+    - <<ht8y:testsuite:ht8y_get_test_case_autotest:$.ID3>>
+    - <<ht8y:testsuite:ht8y_get_test_case_autotest:$.ID4>>
+    - <<ht8y:testsuite:ht8y_get_test_case_autotest:$.ID5>>
+    addRelationTestStory: true
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_task_sprint002
+  notes: 创建测试任务-sprint002
+  url: /api/test/bizplan/executeTestCaseAddTask
+  method: post
+  headers: $devops_header_with_token
+  data:
+    testBizPlanId: <<ht8y:test:ht8y_get_test_plan_sprint002:$.ID>>
+    name: sprint002功能测试任务
+    caseExecuteMethod: manual
+    executeAllCase: false
+    testCaseIds:
+    - <<ht8y:test:ht8y_get_test_case_user_status_change:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_user_reset_secret:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_user_delete:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_user_edit:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_user_add:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_user_query:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_position_query:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_position_add:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_position_edit:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_none:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_diction:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_set:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_tuple:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_list:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_nest:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_bool:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_number:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_sp:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_blank:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_not_exist:$.ID>>
+    - <<ht8y:test:ht8y_get_test_case_dict_exist:$.ID>>
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_task_sprint002
+  notes: 获取测试任务-sprint002
+  url: /api/test/bizplan/getTestBizTaskList
+  method: post
+  headers: $devops_header_with_token
+  data:
+    testBizPlanId: <<ht8y:test:ht8y_get_test_plan_sprint002:$.ID>>
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..testTaskList[?(@.title=='sprint002功能测试任务')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_create_test_task_autotest
+  notes: 创建测试任务-自动化回归
+  url: /api/test/bizplan/executeTestCaseAddTask
+  method: post
+  headers: $devops_header_with_token
+  data:
+    testBizPlanId: <<ht8y:test:ht8y_get_test_plan_autotest:$.ID>>
+    name: 自动化回归测试任务
+    caseExecuteMethod: apiTest
+    executeAllCase: false
+    testCaseIds:
+    - <<ht8y:testsuite:ht8y_get_test_case_autotest:$.ID1>>
+    - <<ht8y:testsuite:ht8y_get_test_case_autotest:$.ID2>>
+    - <<ht8y:testsuite:ht8y_get_test_case_autotest:$.ID3>>
+    - <<ht8y:testsuite:ht8y_get_test_case_autotest:$.ID4>>
+    - <<ht8y:testsuite:ht8y_get_test_case_autotest:$.ID5>>
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK
+
+- name: ht8y_get_test_task_autotest
+  notes: 获取测试任务-自动化回归
+  url: /api/test/bizplan/getTestBizTaskList
+  method: post
+  headers: $devops_header_with_token
+  data:
+    testBizPlanId: <<ht8y:test:ht8y_get_test_plan_autotest:$.ID>>
+  interval_time: null
+  depend_cases:
+  - login
+  labels: null
+  save_result:
+    ID: <<$..testTaskList[?(@.title=='自动化回归测试任务')].id>>
+  expect_rc: 200
+  expect_pattern:
+    key_name: message
+    value: OK

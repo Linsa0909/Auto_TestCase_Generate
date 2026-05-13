@@ -1,0 +1,13 @@
+services:
+  test-case-intel:
+    build: .
+    container_name: test-case-intel
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data/output:/app/output
+      - ./data/log:/app/log
+      - ./data/config.json:/app/config.json
+    environment:
+      - TZ=Asia/Shanghai

@@ -1,8 +1,8 @@
 <template>
-  <div class="min-h-screen bg-white text-gray-900 font-sans selection:bg-gray-200">
+  <div class="min-h-screen bg-black text-white font-sans selection:bg-indigo-500/30">
     <TopNavbar @toggle-settings="showSettings = !showSettings" />
 
-    <main class="h-[calc(100vh-48px)]">
+    <main class="h-[calc(100vh-52px)]">
       <Workbench
         :show-settings="showSettings"
         @close-settings="showSettings = false"
@@ -11,16 +11,16 @@
 
     <!-- Toast -->
     <Teleport to="body">
-      <div class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
+      <div class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none">
         <TransitionGroup>
           <div
             v-for="t in toasts"
             :key="t.id"
             :class="[
-              'pointer-events-auto px-4 py-2.5 bg-white shadow-md rounded-lg text-[13px] border-l-[3px] max-w-xs',
-              t.type === 'success' ? 'border-l-emerald-500' :
-              t.type === 'error'   ? 'border-l-red-500' :
-                                     'border-l-gray-800',
+              'pointer-events-auto px-5 py-3 rounded-lg text-sm border max-w-sm backdrop-blur-sm',
+              t.type === 'success' ? 'bg-zinc-900/90 border-emerald-500/30 text-emerald-300' :
+              t.type === 'error'   ? 'bg-zinc-900/90 border-red-500/30 text-red-300' :
+                                     'bg-zinc-900/90 border-zinc-700 text-zinc-200',
             ]"
           >
             {{ t.message }}

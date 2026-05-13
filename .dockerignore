@@ -4,10 +4,10 @@ __pycache__/
 .venv/
 config.json
 backend/output/
-backend/data/
-backend/static/
 log/
 node_modules/
 frontend/dist/
+backend/static/
 *.log
 .DS_Store
+.git/

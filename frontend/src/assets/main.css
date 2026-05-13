@@ -1,25 +1,28 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* --- Global Reset & Typography --- */
+/* --- Global --- */
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   scroll-behavior: smooth;
+  color-scheme: dark;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', system-ui, sans-serif;
-  line-height: 1.5;
-  font-size: 13px;
-  color: #111827;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  line-height: 1.6;
+  font-size: 17px;
+  background: #000000;
+  color: #ffffff;
 }
 
 ::selection {
-  background: #d1d5db;
+  background: rgba(99, 102, 241, 0.3);
 }
 
-/* --- MinimalInput: bottom-border only --- */
+/* --- Form Reset --- */
 input[type="text"],
 input[type="password"],
 textarea {
@@ -29,35 +32,47 @@ textarea {
   background-image: none;
 }
 
-/* --- Smooth transitions on form elements --- */
 textarea,
 input[type="text"],
 input[type="password"] {
-  transition: border-color 150ms ease, background-color 150ms ease;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
-/* --- Select: keep native appearance --- */
 select {
   cursor: pointer;
 }
 
-/* --- Scrollbar (WebKit) --- */
+/* --- Scrollbar (Dark) --- */
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: #3f3f46;
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: #52525b;
 }
 
-/* --- Toast --- */
+/* --- Micro-dots Pattern --- */
+.micro-dots {
+  background-image: radial-gradient(circle, #27272a 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* --- Glow Effect --- */
+.glow-indigo {
+  background: radial-gradient(ellipse at center, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+}
+.glow-indigo-strong {
+  background: radial-gradient(ellipse at center, rgba(99, 102, 241, 0.12) 0%, transparent 60%);
+}
+
+/* --- Toast Animations --- */
 .toast-enter-active {
   animation: toastIn 200ms cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -73,20 +88,20 @@ select {
   to { opacity: 0; transform: translateY(-4px); }
 }
 
-/* --- Loading spinner --- */
+/* --- Spinner --- */
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 .spinner {
-  border: 2px solid #e5e7eb;
-  border-top-color: #111827;
+  border: 2.5px solid #27272a;
+  border-top-color: #ffffff;
   border-radius: 50%;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   animation: spin 0.7s linear infinite;
 }
 
-/* --- Subtle fade-in for sections --- */
+/* --- Fade Up --- */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
