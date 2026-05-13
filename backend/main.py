@@ -27,9 +27,11 @@ logger = logging.getLogger(__name__)
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
 OUTPUT_DIR = BASE_DIR / "output"
-CONFIG_FILE = BASE_DIR / "config.json"
 DATA_DIR = BASE_DIR / "data"
+CONFIG_FILE = DATA_DIR / "config.json"
 PLANS_FILE = DATA_DIR / "plans.json"
+DEVOPS_CONFIG_FILE = DATA_DIR / "devops_config.json"
+OUTPUT_DIR = DATA_DIR / "output"
 
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -347,7 +349,6 @@ async def export_batch_test_cases(body: ExportBatchModel):
 
 
 # --- DevOps Config ---
-DEVOPS_CONFIG_FILE = DATA_DIR / "devops_config.json"
 
 
 def load_devops_config() -> dict:

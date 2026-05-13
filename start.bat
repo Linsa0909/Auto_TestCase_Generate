@@ -39,8 +39,8 @@ call npm install --silent 2>nul
 call npm run build >nul 2>&1
 cd ..
 
-:: Create output directory
-if not exist "backend\output" mkdir "backend\output"
+:: Create data directory
+if not exist "backend\data\output" mkdir "backend\data\output"
 
 :: Start server
 echo [4/4] Starting server...

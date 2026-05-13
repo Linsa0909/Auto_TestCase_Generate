@@ -23,7 +23,7 @@ RUN pip install --no-cache-dir -r requirements.txt \
 COPY backend/ ./
 COPY --from=frontend-builder /app/backend/static ./static
 
-RUN mkdir -p output log
+RUN mkdir -p data/output
 
 EXPOSE 8000
 

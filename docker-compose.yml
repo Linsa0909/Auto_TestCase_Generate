@@ -6,8 +6,6 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./data/output:/app/output
-      - ./data/log:/app/log
-      - ./data/config.json:/app/config.json
+      - ./data:/app/data
     environment:
       - TZ=Asia/Shanghai

@@ -31,8 +31,8 @@ python3 -m playwright install chromium 2>/dev/null
 echo "[3/4] Building frontend..."
 cd frontend && npm install --silent 2>/dev/null && npm run build 2>/dev/null && cd ..
 
-# Create output directory
-mkdir -p backend/output
+# Create data directory
+mkdir -p backend/data/output
 
 # Start server
 echo "[4/4] Starting server..."
