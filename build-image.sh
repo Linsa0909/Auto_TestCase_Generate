@@ -1,40 +1,68 @@
 #!/bin/bash
 # ==========================================
-#  Test Case Intelligence - 镜像构建脚本
+#  Test Case Intelligence - 镜像构建 & 导出
+#  参照 poc 项目打包流程
 # ==========================================
 set -e
 cd "$(dirname "$0")"
 
-IMAGE_NAME="${IMAGE_NAME:-test-case-intel}"
-IMAGE_TAG="${IMAGE_TAG:-latest}"
+IMAGE_NAME="test-case-intel"
+IMAGE_TAG="${1:-latest}"
 FULL_IMAGE="${IMAGE_NAME}:${IMAGE_TAG}"
+TAR_FILE="test-case-intel_x86_${IMAGE_TAG}.tar"
 
-echo ">>> 构建 Docker 镜像: ${FULL_IMAGE}"
+echo "=========================================="
+echo "  第一阶段：构建镜像"
+echo "=========================================="
+echo ">>> docker build -t ${FULL_IMAGE} ."
 docker build -t "${FULL_IMAGE}" .
-
 echo ""
 echo ">>> 构建完成: ${FULL_IMAGE}"
 echo ""
 
-# --- Option: export as tar ---
-if [ "$1" = "export" ] || [ "$1" = "tar" ]; then
-    TAR_FILE="test-case-intel-${IMAGE_TAG}.tar"
-    echo ">>> 导出镜像为: ${TAR_FILE}"
-    docker save -o "${TAR_FILE}" "${FULL_IMAGE}"
-    ls -lh "${TAR_FILE}"
-    echo ""
-    echo ">>> 将 ${TAR_FILE} 发送给同事，同事执行："
-    echo "    docker load < ${TAR_FILE}"
-    echo "    docker run -d -p 8000:8000 -v ./data:/app/data --name test-case-intel ${FULL_IMAGE}"
-fi
+# 验货
+echo "=========================================="
+echo "  验货：检查镜像内容"
+echo "=========================================="
+docker run --rm "${FULL_IMAGE}" ls -la /app
+echo ""
 
-# --- Option: push to GitHub Container Registry ---
-if [ "$1" = "push" ]; then
-    GHCR_IMAGE="ghcr.io/linsa0909/test-case-intel:${IMAGE_TAG}"
-    echo ">>> 推送到 GitHub Container Registry: ${GHCR_IMAGE}"
-    docker tag "${FULL_IMAGE}" "${GHCR_IMAGE}"
-    docker push "${GHCR_IMAGE}"
-    echo ""
-    echo ">>> 同事拉取并运行："
-    echo "    docker run -d -p 8000:8000 -v ./data:/app/data --name test-case-intel ${GHCR_IMAGE}"
-fi
+# 导出
+echo "=========================================="
+echo "  导出为离线压缩包"
+echo "=========================================="
+docker save -o "${TAR_FILE}" "${FULL_IMAGE}"
+ls -lh "${TAR_FILE}"
+echo ""
+
+echo "=========================================="
+echo "  构建完成！"
+echo "=========================================="
+echo ""
+echo "  发给同事的文件："
+echo "    - ${TAR_FILE}"
+echo ""
+echo "  同事部署命令："
+echo "    # 1. 加载镜像"
+echo "    docker load -i ${TAR_FILE}"
+echo ""
+echo "    # 2. 查看镜像是否加载成功"
+echo "    docker images | grep ${IMAGE_NAME}"
+echo ""
+echo "    # 3. 创建数据目录"
+echo "    mkdir -p data"
+echo ""
+echo "    # 4. 启动"
+echo "    docker run -d \\"
+echo "      --name ${IMAGE_NAME} \\"
+echo "      --restart unless-stopped \\"
+echo "      -p 8000:8000 \\"
+echo "      -v \$(pwd)/data:/app/data \\"
+echo "      ${FULL_IMAGE}"
+echo ""
+echo "    # 5. 查看日志"
+echo "    docker logs -f ${IMAGE_NAME}"
+echo ""
+echo "    # 6. 停止 / 删除"
+echo "    docker stop ${IMAGE_NAME} && docker rm ${IMAGE_NAME}"
+echo ""
