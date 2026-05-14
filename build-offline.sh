@@ -28,13 +28,35 @@ mkdir -p "${PACKAGE_DIR}" "${CACHE_DIR}"
 
 # --- Step 2: Download portable Python (cached) ---
 echo "[2/7] 下载嵌入式 Python ${PYTHON_VERSION}..."
+_download_python() {
+    local url="$1"
+    echo "  下载: ${url}"
+    curl -L --connect-timeout 10 --max-time 300 -o "${CACHE_DIR}/${PYTHON_BUILD}" "${url}"
+    # Verify the download is a valid gzip
+    if gzip -t "${CACHE_DIR}/${PYTHON_BUILD}" 2>/dev/null; then
+        return 0
+    fi
+    echo "  [WARN] 下载文件损坏，清理缓存重试..."
+    rm -f "${CACHE_DIR}/${PYTHON_BUILD}"
+    return 1
+}
+
+if [ -f "${CACHE_DIR}/${PYTHON_BUILD}" ]; then
+    if ! gzip -t "${CACHE_DIR}/${PYTHON_BUILD}" 2>/dev/null; then
+        echo "  缓存文件损坏，重新下载..."
+        rm -f "${CACHE_DIR}/${PYTHON_BUILD}"
+    fi
+fi
+
 if [ ! -f "${CACHE_DIR}/${PYTHON_BUILD}" ]; then
-    echo "  尝试镜像: ${PYTHON_URL_MIRROR}"
-    curl -L --connect-timeout 10 --max-time 120 -o "${CACHE_DIR}/${PYTHON_BUILD}" "${PYTHON_URL_MIRROR}" || {
-        echo "  镜像失败，尝试直连: ${PYTHON_URL_DIRECT}"
-        curl -L --connect-timeout 10 --max-time 300 -o "${CACHE_DIR}/${PYTHON_BUILD}" "${PYTHON_URL_DIRECT}"
+    # Try mirror first, then direct
+    _download_python "${PYTHON_URL_MIRROR}" || _download_python "${PYTHON_URL_DIRECT}" || {
+        echo "  [ERROR] 下载失败，请检查网络后重试"
+        exit 1
     }
 fi
+
+echo "  解压 Python..."
 tar xzf "${CACHE_DIR}/${PYTHON_BUILD}" -C "${PACKAGE_DIR}"
 PYTHON_DIR="${PACKAGE_DIR}/python"
 PYTHON_BIN="${PYTHON_DIR}/bin/python3"
