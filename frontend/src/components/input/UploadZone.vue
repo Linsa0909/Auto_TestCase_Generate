@@ -15,8 +15,8 @@
         :stroke-width="1.5"
       />
       <p class="text-sm text-zinc-500 text-center">{{ dragging ? '释放以上传' : '拖拽或点击上传原型文件' }}</p>
-      <p class="text-xs text-zinc-400">支持 HTML, ZIP, PNG, JPG</p>
-      <input ref="fileInput" type="file" multiple accept=".html,.zip,.png,.jpg,.jpeg" class="hidden" @change="handleSelect" />
+      <p class="text-xs text-zinc-400">支持 HTML, ZIP, DOCX, PNG, JPG</p>
+      <input ref="fileInput" type="file" multiple accept=".html,.zip,.docx,.png,.jpg,.jpeg" class="hidden" @change="handleSelect" />
     </div>
 
     <div v-if="files.length" class="mt-3 flex flex-col gap-1.5">
@@ -49,7 +49,7 @@ function triggerInput() { fileInput.value?.click() }
 function handleDrop(e) { dragging.value = false; addFiles(Array.from(e.dataTransfer.files)) }
 function handleSelect(e) { addFiles(Array.from(e.target.files || [])); e.target.value = '' }
 function addFiles(newFiles) {
-  const allowed = ['.html', '.zip', '.png', '.jpg', '.jpeg']
+  const allowed = ['.html', '.zip', '.docx', '.png', '.jpg', '.jpeg']
   const valid = newFiles.filter(f => allowed.includes('.' + f.name.split('.').pop().toLowerCase()))
   if (valid.length) emit('update:files', [...props.files, ...valid])
 }

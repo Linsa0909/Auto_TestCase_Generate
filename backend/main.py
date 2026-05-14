@@ -166,6 +166,14 @@ async def generate_test_cases(
                 if semantic:
                     semantic_parts.append(semantic)
 
+            # Extract text + OCR images from Word documents
+            elif file_path.lower().endswith('.docx'):
+                logger.info(f"Extracting from Word document: {file_path}")
+                from docx_extractor import extract_docx
+                docx_text = await extract_docx(file_path)
+                if docx_text:
+                    semantic_parts.append(docx_text)
+
             # Extract text from images via PaddleOCR
             elif file_path.lower().endswith(('.png', '.jpg', '.jpeg')):
                 logger.info(f"Extracting text via OCR from: {file_path}")
