@@ -7,9 +7,10 @@ set -e
 cd "$(dirname "$0")"
 
 PACKAGE_NAME="test-case-intel-offline"
-PYTHON_VERSION="3.12.9"
-PYTHON_BUILD="cpython-${PYTHON_VERSION}-x86_64-unknown-linux-gnu-install_only.tar.gz"
-PYTHON_URL="https://github.com/indygreg/python-build-standalone/releases/download/20241206/${PYTHON_BUILD}"
+PYTHON_VERSION="3.12.13"
+PYTHON_RELEASE="20260510"
+PYTHON_BUILD="cpython-${PYTHON_VERSION}+${PYTHON_RELEASE}-x86_64-unknown-linux-gnu-install_only.tar.gz"
+PYTHON_URL="https://github.com/indygreg/python-build-standalone/releases/download/${PYTHON_RELEASE}/${PYTHON_BUILD}"
 BUILD_DIR="build/offline-package"
 CACHE_DIR="build/cache"
 PACKAGE_DIR="${BUILD_DIR}/${PACKAGE_NAME}"
