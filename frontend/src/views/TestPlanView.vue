@@ -246,13 +246,19 @@
           </div>
           <div class="px-8 py-3 border-t border-zinc-200">
             <div class="max-w-[600px] flex items-center gap-3">
-              <div class="relative flex-1">
-                <div class="absolute -inset-4 glow-indigo pointer-events-none rounded-xl" />
-                <button @click="generateSingle(selectedIdx)" :disabled="selectedReq.status === 'generating'"
-                  class="relative w-full py-2.5 rounded-lg text-sm font-medium bg-zinc-900 text-white hover:bg-zinc-800 transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
-                  <Sparkles class="w-4 h-4" :stroke-width="2" />
-                  {{ selectedReq.status === 'generating' ? '生成中...' : selectedReq.status === 'done' ? '重新生成' : '生成用例' }}
-                </button>
+              <div class="relative flex-1 flex flex-col gap-2">
+                <div class="relative">
+                  <div class="absolute -inset-4 glow-indigo pointer-events-none rounded-xl" />
+                  <button @click="generateSingle(selectedIdx)" :disabled="selectedReq.status === 'generating'"
+                    class="relative w-full py-2.5 rounded-lg text-sm font-medium bg-zinc-900 text-white hover:bg-zinc-800 transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
+                    <div v-if="selectedReq.status === 'generating'" class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                    <Sparkles v-else class="w-4 h-4" :stroke-width="2" />
+                    {{ selectedReq.status === 'generating' ? '生成中...' : selectedReq.status === 'done' ? '重新生成' : '生成用例' }}
+                  </button>
+                </div>
+                <div v-if="selectedReq.status === 'generating'" class="h-[3px] bg-zinc-200 rounded-full overflow-hidden">
+                  <div class="h-full w-1/2 bg-zinc-900 rounded-full animate-pulse" />
+                </div>
               </div>
               <button @click="removeRequirement(selectedIdx)" class="px-4 py-2.5 rounded-lg text-sm font-medium text-zinc-500 border border-zinc-300 hover:border-red-300 hover:text-red-500 hover:bg-red-50 transition-colors">删除</button>
             </div>
