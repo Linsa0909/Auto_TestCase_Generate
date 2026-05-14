@@ -209,7 +209,10 @@ async def generate_test_cases(
                 if title and not title.startswith("【"):
                     tc["title"] = f"【{group}】{title}"
             if requirement_id:
-                tc["requirement_id"] = requirement_id
+                rid = requirement_id.strip().lstrip('#')
+                if rid and not rid.endswith(','):
+                    rid = rid + ','
+                tc["requirement_id"] = rid
             if requirement_name:
                 tc["requirement_name"] = requirement_name.strip()
 

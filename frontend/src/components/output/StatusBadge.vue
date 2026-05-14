@@ -8,11 +8,11 @@
 import { computed } from 'vue'
 const props = defineProps({ type: { type: String, default: 'func' } })
 const typeMap = {
-  smoke: { label: '冒烟', class: 'bg-white text-black' },
-  func: { label: '功能', class: 'bg-zinc-700 text-zinc-200' },
-  edge: { label: '边界', class: 'bg-zinc-700 text-zinc-300' },
-  error: { label: '异常', class: 'bg-zinc-700 text-zinc-300' },
+  smoke: { label: '冒烟', class: 'bg-zinc-900 text-white' },
+  func: { label: '功能', class: 'bg-zinc-200 text-zinc-700' },
+  edge: { label: '边界', class: 'bg-zinc-200 text-zinc-600' },
+  error: { label: '异常', class: 'bg-zinc-200 text-zinc-600' },
 }
 const label = computed(() => typeMap[props.type]?.label || '功能')
-const typeClass = computed(() => typeMap[props.type]?.class || 'bg-zinc-700 text-zinc-200')
+const typeClass = computed(() => typeMap[props.type]?.class || 'bg-zinc-200 text-zinc-600')
 </script>

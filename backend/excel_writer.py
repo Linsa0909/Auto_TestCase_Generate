@@ -20,6 +20,16 @@ class ExcelWriter:
 
     COLUMN_WIDTHS = [16, 44, 14, 10, 48, 55, 55, 24, 20]
 
+    @staticmethod
+    def _normalize_requirement_id(rid: str) -> str:
+        """Normalize requirement ID: strip # prefix, ensure trailing comma."""
+        if not rid:
+            return ""
+        rid = rid.strip().lstrip('#')
+        if rid and not rid.endswith(','):
+            rid = rid + ','
+        return rid
+
     def write(self, test_cases: list, filepath: str,
               requirement_name: str = "") -> str:
         """
@@ -75,7 +85,8 @@ class ExcelWriter:
                     ws.cell(row=r, column=3, value=tc.get("type", "手动测试用例")).alignment = cell_alignment
                     ws.cell(row=r, column=4, value=tc.get("priority", "L1")).alignment = cell_alignment
                     ws.cell(row=r, column=5, value=tc.get("precondition", "")).alignment = cell_alignment
-                    ws.cell(row=r, column=8, value=tc.get("requirement_id", "")).alignment = cell_alignment
+                    rid = self._normalize_requirement_id(tc.get("requirement_id", ""))
+                    ws.cell(row=r, column=8, value=rid).alignment = cell_alignment
                     ws.cell(row=r, column=9, value=tc.get("requirement_name", "") or requirement_name).alignment = cell_alignment
                     # Apply border to all cells in first row
                     for c in range(1, 10):
