@@ -57,17 +57,18 @@ SYSTEM_PROMPT = """你是一位资深的软件测试工程师（SDET），专注
     "level": "高|中|低",
     "pre_condition": "前置条件",
     "steps": "1. 步骤一\\n2. 步骤二\\n3. 步骤三",
-    "expected": "预期结果"
+    "expected": "1. 步骤一的预期结果\\n2. 步骤二的预期结果\\n3. 步骤三的预期结果"
   }
 ]
 
-## 要求
+## 关键要求（必须遵守）
 1. 只输出JSON数组，不输出其他任何内容
 2. 用例标题格式："功能模块-具体测试点"
 3. 根据原型UI元素确保每个交互元素都有对应测试
 4. 总数建议30-60条
-5. 步骤描述要详细、可执行
-6. 预期结果要明确、可验证"""
+5. 步骤描述要详细、可执行，每个步骤用数字编号独立一行
+6. **预期结果必须与步骤一一对应，步骤有几条，预期结果就必须有几条，编号必须对齐**
+7. 预期结果要明确、可验证，禁止出现空预期"""
 
 
 class AIGenerator:
@@ -178,8 +179,13 @@ class AIGenerator:
 
             # Pair step[i] with expected[i] one-to-one
             steps = []
+            last_exp = ""
             for i, step in enumerate(step_lines):
                 exp = expected_lines[i] if i < len(expected_lines) else ""
+                if not exp.strip():
+                    exp = last_exp if last_exp else "验证通过"
+                else:
+                    last_exp = exp
                 steps.append({"step": step, "expected": exp})
 
             validated.append({
