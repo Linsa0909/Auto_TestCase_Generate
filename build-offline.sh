@@ -10,9 +10,11 @@ PACKAGE_NAME="test-case-intel-offline"
 PYTHON_VERSION="3.12.13"
 PYTHON_RELEASE="20260510"
 PYTHON_BUILD="cpython-${PYTHON_VERSION}+${PYTHON_RELEASE}-x86_64-unknown-linux-gnu-install_only.tar.gz"
-# Proxy (Clash default: 7890)
-export https_proxy="${https_proxy:-http://127.0.0.1:7890}"
-export http_proxy="${http_proxy:-http://127.0.0.1:7890}"
+# Proxy — auto-detect Windows host IP from WSL
+if [ -z "$https_proxy" ]; then
+    _host_ip=$(ip route show default 2>/dev/null | awk '{print $3}' | head -1)
+    [ -n "$_host_ip" ] && export https_proxy="http://${_host_ip}:7890" http_proxy="http://${_host_ip}:7890"
+fi
 
 PYTHON_URL_DIRECT="https://github.com/indygreg/python-build-standalone/releases/download/${PYTHON_RELEASE}/${PYTHON_BUILD}"
 PYTHON_URL_MIRRORS=(
