@@ -88,6 +88,7 @@
             </p>
             <div class="flex flex-col gap-4">
               <MinimalInput label="平台地址" v-model="devopsSettings.devops_url" placeholder="https://devops.company.com" />
+              <MinimalInput label="Token（直接填入则跳过登录）" type="password" v-model="devopsSettings.devops_token" placeholder="从浏览器DevTools获取" />
               <MinimalInput label="用户名" v-model="devopsSettings.devops_username" placeholder="登录用户名" />
               <MinimalInput label="密码" type="password" v-model="devopsSettings.devops_password" placeholder="登录密码" />
               <MinimalInput label="产品名称" v-model="devopsSettings.product_name" placeholder="与 DevOps 中的产品名称一致" />
@@ -146,7 +147,7 @@ function closePlan() {
 }
 
 const settings = reactive({ api_key: '', api_base: 'http://172.16.3.6:8589', model: 'GLM-5.1' })
-const devopsSettings = reactive({ devops_url: '', devops_username: '', devops_password: '', product_name: '' })
+const devopsSettings = reactive({ devops_url: '', devops_token: '', devops_username: '', devops_password: '', product_name: '' })
 const configMsg = ref(null)
 
 async function loadSettings() {
@@ -161,6 +162,7 @@ async function loadSettings() {
     const res = await fetch('/api/devops-config')
     const data = await res.json()
     devopsSettings.devops_url = data.devops_url || ''
+    devopsSettings.devops_token = data.devops_token || ''
     devopsSettings.devops_username = data.devops_username || ''
     devopsSettings.devops_password = data.devops_password || ''
     devopsSettings.product_name = data.product_name || ''
