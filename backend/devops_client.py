@@ -45,20 +45,13 @@ class DevOpsClient:
 
     async def login(self, username: str, password: str) -> str:
         """Login and store token. Returns the token."""
-        resp = await self._post("/api/login", {
+        resp = await self._post("/api/auth/public/login", {
             "username": username,
             "password": password,
+            "provider": "DEVOPS",
+            "validFlag": True,
         })
-        # Try common response structures for token
-        token = (
-            resp.get("data", {}).get("token")
-            or resp.get("data", {}).get("access_token")
-            or resp.get("token")
-            or resp.get("data", {}).get("tokenId")
-            or ""
-        )
-        if not token and isinstance(resp.get("data"), str):
-            token = resp["data"]
+        token = resp.get("data", {}).get("token", "")
         self.token = token
         return token
 
