@@ -343,7 +343,12 @@ async function loadPlan() {
     const data = await res.json()
     productName.value = data.product_name || ''
     iterationName.value = data.iteration_name || ''
-    requirements.value = (data.requirements || []).map(r => ({
+    // Filter out corrupted entries (empty name / NaN)
+    const cleanReqs = (data.requirements || []).filter(r => {
+      const name = String(r.name || '').trim()
+      return name && name !== 'nan' && name !== 'NaN' && name !== 'null' && name !== 'undefined'
+    })
+    requirements.value = cleanReqs.map(r => ({
       ...r,
       files: r.files || [],
       testCases: r.testCases || [],
@@ -396,7 +401,7 @@ function parseImport() {
   let parsed = 0
   for (const block of blocks) {
     const req = parseRequirementBlock(block)
-    if (req.name || req.id) { requirements.value.push(req); parsed++ }
+    if (req.name && req.name !== 'nan' && req.name !== 'NaN') { requirements.value.push(req); parsed++ }
   }
   if (parsed > 0) {
     toast(`成功导入 ${parsed} 个需求`, 'success')
