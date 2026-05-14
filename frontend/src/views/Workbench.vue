@@ -124,8 +124,8 @@ const props = defineProps({ showSettings: Boolean })
 const emit = defineEmits(['close-settings'])
 
 const tabs = [
-  { key: 'cases', label: '测试用例', icon: FileText },
   { key: 'plan', label: '测试计划', icon: ClipboardList },
+  { key: 'cases', label: '测试用例', icon: FileText },
 ]
 const activeTab = ref('plan')
 const editingPlanId = ref(null)
