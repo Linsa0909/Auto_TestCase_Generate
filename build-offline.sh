@@ -16,12 +16,7 @@ if [ -z "$https_proxy" ]; then
     [ -n "$_host_ip" ] && export https_proxy="http://${_host_ip}:7890" http_proxy="http://${_host_ip}:7890"
 fi
 
-PYTHON_URL_DIRECT="https://github.com/indygreg/python-build-standalone/releases/download/${PYTHON_RELEASE}/${PYTHON_BUILD}"
-PYTHON_URL_MIRRORS=(
-    "https://ghproxy.com/${PYTHON_URL_DIRECT}"
-    "https://mirror.ghproxy.com/${PYTHON_URL_DIRECT}"
-    "${PYTHON_URL_DIRECT}"
-)
+PYTHON_URL="https://github.com/indygreg/python-build-standalone/releases/download/${PYTHON_RELEASE}/${PYTHON_BUILD}"
 BUILD_DIR="build/offline-package"
 CACHE_DIR="build/cache"
 PACKAGE_DIR="${BUILD_DIR}/${PACKAGE_NAME}"
@@ -37,19 +32,6 @@ mkdir -p "${PACKAGE_DIR}" "${CACHE_DIR}"
 
 # --- Step 2: Download portable Python (cached) ---
 echo "[2/7] 下载嵌入式 Python ${PYTHON_VERSION}..."
-_download_python() {
-    local url="$1"
-    echo "  下载: ${url}"
-    curl -L --connect-timeout 10 --max-time 300 -o "${CACHE_DIR}/${PYTHON_BUILD}" "${url}"
-    # Verify the download is a valid gzip
-    if gzip -t "${CACHE_DIR}/${PYTHON_BUILD}" 2>/dev/null; then
-        return 0
-    fi
-    echo "  [WARN] 下载文件损坏，清理缓存重试..."
-    rm -f "${CACHE_DIR}/${PYTHON_BUILD}"
-    return 1
-}
-
 if [ -f "${CACHE_DIR}/${PYTHON_BUILD}" ]; then
     if ! gzip -t "${CACHE_DIR}/${PYTHON_BUILD}" 2>/dev/null; then
         echo "  缓存文件损坏，重新下载..."
@@ -58,18 +40,14 @@ if [ -f "${CACHE_DIR}/${PYTHON_BUILD}" ]; then
 fi
 
 if [ ! -f "${CACHE_DIR}/${PYTHON_BUILD}" ]; then
-    # Try each mirror in order
-    _ok=0
-    for _url in "${PYTHON_URL_MIRRORS[@]}"; do
-        if _download_python "${_url}"; then
-            _ok=1
-            break
-        fi
-    done
-    if [ "$_ok" -eq 0 ]; then
-        echo "  [ERROR] 所有源下载失败，请检查网络后重试"
+    echo "  下载: ${PYTHON_URL}"
+    curl -L --connect-timeout 10 --max-time 600 -o "${CACHE_DIR}/${PYTHON_BUILD}" "${PYTHON_URL}"
+    if ! gzip -t "${CACHE_DIR}/${PYTHON_BUILD}" 2>/dev/null; then
+        echo "  [ERROR] 下载文件损坏，请检查网络后重试"
+        rm -f "${CACHE_DIR}/${PYTHON_BUILD}"
         exit 1
     fi
+    echo "  下载完成 ($(du -h "${CACHE_DIR}/${PYTHON_BUILD}" | cut -f1))"
 fi
 
 echo "  解压 Python..."
