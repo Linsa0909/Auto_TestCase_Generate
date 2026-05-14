@@ -394,8 +394,9 @@ async def get_devops_config():
     password = masked.get("devops_password", "")
     if password:
         masked["devops_password"] = password[:2] + "*" * (len(password) - 2) if len(password) > 2 else "***"
-    masked["configured"] = bool(config.get("devops_url") and config.get("devops_username"))
+    masked["configured"] = bool(config.get("devops_url") and (config.get("devops_token") or config.get("devops_username")))
     masked.setdefault("devops_url", "")
+    masked.setdefault("devops_token", "")
     masked.setdefault("devops_username", "")
     masked.setdefault("devops_password", "")
     masked.setdefault("product_name", "")
@@ -404,6 +405,7 @@ async def get_devops_config():
 
 class DevOpsConfigModel(BaseModel):
     devops_url: str = ""
+    devops_token: str = ""
     devops_username: str = ""
     devops_password: str = ""
     product_name: str = ""
@@ -413,6 +415,7 @@ class DevOpsConfigModel(BaseModel):
 async def save_devops_config_route(body: DevOpsConfigModel):
     config = {
         "devops_url": body.devops_url,
+        "devops_token": body.devops_token,
         "devops_username": body.devops_username,
         "devops_password": body.devops_password,
         "product_name": body.product_name,
@@ -448,12 +451,15 @@ async def push_to_devops(plan_id: str):
     # Load DevOps config
     devops_config = load_devops_config()
     devops_url = devops_config.get("devops_url", "")
+    devops_token = devops_config.get("devops_token", "")
     devops_username = devops_config.get("devops_username", "")
     devops_password = devops_config.get("devops_password", "")
     product_name = devops_config.get("product_name", "") or plan.get("product_name", "")
 
-    if not devops_url or not devops_username:
-        raise HTTPException(400, "请先在设置中配置 DevOps 平台地址和用户名")
+    if not devops_url:
+        raise HTTPException(400, "请先在设置中配置 DevOps 平台地址")
+    if not devops_token and not devops_username:
+        raise HTTPException(400, "请先在设置中配置 Token 或用户名密码")
     if not product_name:
         raise HTTPException(400, "请先在设置中配置产品名称")
 
@@ -466,10 +472,14 @@ async def push_to_devops(plan_id: str):
         _push_progress[plan_id] = {"step": step, "total": total, "message": message, "done": False, "result": None}
 
     try:
-        # Step 0: Login
-        token = await client.login(devops_username, devops_password)
-        if not token:
-            raise ValueError("登录失败，请检查用户名和密码")
+        # Step 0: Login or use direct token
+        if devops_token:
+            client.token = devops_token
+            _push_progress[plan_id] = {"step": 2, "total": 10, "message": "已使用预设Token", "done": False, "result": None}
+        else:
+            token = await client.login(devops_username, devops_password)
+            if not token:
+                raise ValueError("登录失败，请检查用户名和密码")
 
         plan_title = f"{plan.get('product_name', '')} - {plan.get('iteration_name', '测试计划')}"
 
