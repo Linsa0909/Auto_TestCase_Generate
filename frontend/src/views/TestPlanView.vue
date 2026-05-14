@@ -270,9 +270,9 @@
           <p class="text-base font-medium text-zinc-900">正在批量生成测试用例</p>
           <p class="text-sm text-zinc-500 mt-1">{{ progressDone }} / {{ batchTotal }} 个需求已完成</p>
         </div>
-        <button @click="cancelBatchGenerate"
-          class="px-6 py-2.5 rounded-lg text-sm font-medium border border-zinc-300 text-zinc-600 hover:border-red-300 hover:text-red-500 transition-all">
-          取消生成
+        <button @click="cancelBatchGenerate" :disabled="batchCancelled"
+          class="px-6 py-2.5 rounded-lg text-sm font-medium border border-zinc-300 text-zinc-600 hover:border-red-300 hover:text-red-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+          {{ batchCancelled ? '正在取消...' : '取消生成' }}
         </button>
       </div>
     </Transition>
@@ -477,6 +477,7 @@ const batchTotal = ref(0)
 const pushingToDevOps = ref(false)
 const pushProgress = ref({ step: 0, total: 8, message: '', done: false })
 const progressDone = ref(0)
+const abortController = ref(null)
 
 async function generateSingle(idx) {
   const req = requirements.value[idx]
@@ -556,11 +557,15 @@ async function batchGenerate() {
       fd.append('requirement_id', req.id); fd.append('test_type', req.testType || '全面覆盖')
       fd.append('group', req.group || '')
       for (const file of req.files) fd.append('files', file)
-      const res = await fetch('/api/generate', { method: 'POST', body: fd })
+      abortController.value = new AbortController()
+      const res = await fetch('/api/generate', { method: 'POST', body: fd, signal: abortController.value.signal })
       if (!res.ok) { const err = await res.json().catch(() => ({ detail: res.statusText })); throw new Error(err.detail || '生成失败') }
       const data = await res.json()
       req.testCases = data.test_cases || []; req.status = 'done'
-    } catch (e) { req.status = 'pending'; toast(`${req.name} 生成失败: ${e.message}`, 'error') }
+    } catch (e) {
+      if (e.name === 'AbortError') { req.status = 'generating'; break }
+      req.status = 'pending'; toast(`${req.name} 生成失败: ${e.message}`, 'error')
+    }
     progressDone.value++
   }
   // If cancelled, rollback un-finished items
@@ -574,6 +579,7 @@ async function batchGenerate() {
     toast('已取消生成', 'error')
   }
   batchGenerating.value = false
+  abortController.value = null
   autoSave()
   if (!batchCancelled.value && completedCount.value === requirements.value.length) {
     toast(`全部 ${requirements.value.length} 个需求已生成`, 'success')
@@ -582,6 +588,9 @@ async function batchGenerate() {
 
 function cancelBatchGenerate() {
   batchCancelled.value = true
+  if (abortController.value) {
+    abortController.value.abort()
+  }
 }
 
 const batchExporting = ref(false)
