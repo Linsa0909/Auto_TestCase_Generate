@@ -481,7 +481,7 @@ const abortController = ref(null)
 
 async function generateSingle(idx) {
   const req = requirements.value[idx]
-  if (!req || req.status === 'done' || req.status === 'generating') return
+  if (!req || req.status === 'generating') return
   req.status = 'generating'
   try {
     const fd = new FormData()
