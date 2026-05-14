@@ -10,7 +10,9 @@ PACKAGE_NAME="test-case-intel-offline"
 PYTHON_VERSION="3.12.13"
 PYTHON_RELEASE="20260510"
 PYTHON_BUILD="cpython-${PYTHON_VERSION}+${PYTHON_RELEASE}-x86_64-unknown-linux-gnu-install_only.tar.gz"
-PYTHON_URL="https://github.com/indygreg/python-build-standalone/releases/download/${PYTHON_RELEASE}/${PYTHON_BUILD}"
+PYTHON_URL_DIRECT="https://github.com/indygreg/python-build-standalone/releases/download/${PYTHON_RELEASE}/${PYTHON_BUILD}"
+PYTHON_URL_MIRROR="https://mirror.ghproxy.com/${PYTHON_URL_DIRECT}"
+PYTHON_URL="${PYTHON_URL_MIRROR}"
 BUILD_DIR="build/offline-package"
 CACHE_DIR="build/cache"
 PACKAGE_DIR="${BUILD_DIR}/${PACKAGE_NAME}"
@@ -27,7 +29,11 @@ mkdir -p "${PACKAGE_DIR}" "${CACHE_DIR}"
 # --- Step 2: Download portable Python (cached) ---
 echo "[2/7] 下载嵌入式 Python ${PYTHON_VERSION}..."
 if [ ! -f "${CACHE_DIR}/${PYTHON_BUILD}" ]; then
-    curl -L -o "${CACHE_DIR}/${PYTHON_BUILD}" "${PYTHON_URL}"
+    echo "  尝试镜像: ${PYTHON_URL_MIRROR}"
+    curl -L --connect-timeout 10 --max-time 120 -o "${CACHE_DIR}/${PYTHON_BUILD}" "${PYTHON_URL_MIRROR}" || {
+        echo "  镜像失败，尝试直连: ${PYTHON_URL_DIRECT}"
+        curl -L --connect-timeout 10 --max-time 300 -o "${CACHE_DIR}/${PYTHON_BUILD}" "${PYTHON_URL_DIRECT}"
+    }
 fi
 tar xzf "${CACHE_DIR}/${PYTHON_BUILD}" -C "${PACKAGE_DIR}"
 PYTHON_DIR="${PACKAGE_DIR}/python"
