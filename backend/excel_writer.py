@@ -116,3 +116,46 @@ class ExcelWriter:
         os.makedirs(os.path.dirname(filepath) if os.path.dirname(filepath) else ".", exist_ok=True)
         wb.save(filepath)
         return filepath
+
+    @staticmethod
+    def read(filepath: str) -> list:
+        """
+        Read test cases back from an Excel file.
+        Returns a list of test case dicts compatible with the frontend DataTable.
+        """
+        wb = openpyxl.load_workbook(filepath)
+        ws = wb.active
+
+        test_cases = []
+        current_tc = None
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            title = (row[1] or "").strip() if len(row) > 1 else ""
+            step_text = (row[5] or "").strip() if len(row) > 5 else ""
+            expected_text = (row[6] or "").strip() if len(row) > 6 else ""
+
+            if title:
+                # New test case
+                raw_type_map = {"L0": "冒烟", "L1": "功能", "L2": "边界"}
+                priority = (row[3] or "L1").strip() if len(row) > 3 else "L1"
+                current_tc = {
+                    "group": (row[0] or "").strip() if len(row) > 0 else "",
+                    "title": title,
+                    "type": (row[2] or "手动测试用例").strip() if len(row) > 2 else "手动测试用例",
+                    "priority": priority,
+                    "precondition": (row[4] or "").strip() if len(row) > 4 else "",
+                    "requirement_id": (row[7] or "").strip() if len(row) > 7 else "",
+                    "requirement_name": (row[8] or "").strip() if len(row) > 8 else "",
+                    "raw_type": raw_type_map.get(priority, "功能"),
+                    "raw_level": "高" if priority == "L0" else "中" if priority == "L1" else "低",
+                    "steps": [],
+                }
+                test_cases.append(current_tc)
+
+            if current_tc is not None and (step_text or expected_text):
+                current_tc["steps"].append({
+                    "step": step_text,
+                    "expected": expected_text,
+                })
+
+        wb.close()
+        return test_cases

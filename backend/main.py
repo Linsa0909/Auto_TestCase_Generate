@@ -286,6 +286,19 @@ async def download_file(filepath: str):
     )
 
 
+# --- History Cases Route (read Excel back as JSON) ---
+@app.get("/api/history-cases/{filepath:path}")
+async def get_history_cases(filepath: str):
+    full_path = OUTPUT_DIR / filepath
+    if not full_path.exists():
+        raise HTTPException(404, "文件不存在")
+    try:
+        cases = excel_writer.read(str(full_path))
+        return {"test_cases": cases, "count": len(cases)}
+    except Exception as e:
+        raise HTTPException(500, f"读取文件失败: {str(e)}")
+
+
 # --- Export Route (export edited test cases) ---
 class ExportModel(BaseModel):
     test_cases: list

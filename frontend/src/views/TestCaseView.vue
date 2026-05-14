@@ -50,14 +50,25 @@
         <div v-else class="flex flex-col gap-1.5 max-h-72 overflow-y-auto">
           <div
             v-for="(item, idx) in history" :key="idx"
-            class="flex items-center gap-3 px-4 py-3 rounded-lg bg-zinc-50 border border-zinc-200 hover:border-zinc-300 hover:scale-[1.01] transition-all cursor-pointer group"
-            @click="downloadHistory(item)"
+            :class="[
+              'flex items-center gap-3 px-4 py-3 rounded-lg border transition-all cursor-pointer group',
+              historyActive?.download_url === item.download_url
+                ? 'bg-zinc-200/50 border-zinc-400'
+                : 'bg-zinc-50 border-zinc-200 hover:border-zinc-300 hover:scale-[1.01]'
+            ]"
+            @click="viewHistoryCases(item)"
           >
             <div class="flex-1 min-w-0">
               <div class="text-sm text-zinc-900 truncate font-medium">{{ item.requirement_name }}</div>
               <div class="text-xs text-zinc-400 mt-0.5">{{ item.created }} · {{ item.size_kb }} KB</div>
             </div>
-            <Download class="w-4 h-4 text-zinc-400 group-hover:text-zinc-600 transition-colors" :stroke-width="1.5" />
+            <button
+              @click.stop="downloadHistory(item)"
+              class="w-6 h-6 flex items-center justify-center rounded text-zinc-400 hover:text-zinc-600 hover:bg-zinc-200 transition-colors opacity-0 group-hover:opacity-100"
+              title="下载 Excel"
+            >
+              <Download class="w-3.5 h-3.5" :stroke-width="2" />
+            </button>
           </div>
         </div>
       </div>
@@ -67,8 +78,11 @@
     <section class="lg:col-span-8 flex flex-col gap-5">
       <div class="flex items-center justify-between pb-4 border-b border-zinc-200">
         <div class="flex items-center gap-3">
-          <h2 class="text-xs text-zinc-500 uppercase tracking-wider font-medium">生成结果预览</h2>
+          <h2 class="text-xs text-zinc-500 uppercase tracking-wider font-medium">
+            {{ historyActive ? '历史记录' : '生成结果预览' }}
+          </h2>
           <span v-if="result" class="text-xs text-zinc-400 tabular-nums">{{ result.test_cases?.length || 0 }} 条用例</span>
+          <button v-if="historyActive" @click="clearHistoryView" class="text-xs text-zinc-400 hover:text-zinc-600 transition-colors">← 返回</button>
         </div>
         <div v-if="result">
           <button
@@ -149,10 +163,27 @@ async function handleExportEdited() {
 
 const history = ref([])
 const historyLoading = ref(false)
+const historyActive = ref(null)
 async function loadHistory() {
   historyLoading.value = true
   try { const res = await fetch('/api/history'); history.value = await res.json() }
   catch { history.value = [] } finally { historyLoading.value = false }
+}
+async function viewHistoryCases(item) {
+  historyActive.value = item
+  try {
+    const res = await fetch('/api/history-cases/' + item.download_url.replace('/api/download/', ''))
+    if (!res.ok) throw new Error('加载失败')
+    const data = await res.json()
+    result.value = { test_cases: data.test_cases, count: data.count, requirement_name: item.requirement_name, download_url: item.download_url }
+  } catch (e) {
+    toast('加载历史用例失败: ' + e.message, 'error')
+    historyActive.value = null
+  }
+}
+function clearHistoryView() {
+  historyActive.value = null
+  result.value = null
 }
 function downloadHistory(item) {
   const a = document.createElement('a'); a.href = item.download_url; a.download = ''
