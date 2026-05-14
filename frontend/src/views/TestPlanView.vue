@@ -493,7 +493,9 @@ async function generateSingle(idx) {
     fd.append('requirement_name', req.name); fd.append('description', req.description || '')
     fd.append('requirement_id', req.id); fd.append('test_type', req.testType || '全面覆盖')
     fd.append('group', req.group || '')
-    for (const file of req.files) fd.append('files', file)
+    for (const file of req.files) {
+      if (file instanceof File) fd.append('files', file)
+    }
     const res = await fetch('/api/generate', { method: 'POST', body: fd })
     if (!res.ok) { const err = await res.json().catch(() => ({ detail: res.statusText })); throw new Error(err.detail || '生成失败') }
     const data = await res.json()
@@ -561,7 +563,9 @@ async function batchGenerate() {
       fd.append('requirement_name', req.name); fd.append('description', req.description || '')
       fd.append('requirement_id', req.id); fd.append('test_type', req.testType || '全面覆盖')
       fd.append('group', req.group || '')
-      for (const file of req.files) fd.append('files', file)
+      for (const file of req.files) {
+        if (file instanceof File) fd.append('files', file)
+      }
       abortController.value = new AbortController()
       const res = await fetch('/api/generate', { method: 'POST', body: fd, signal: abortController.value.signal })
       if (!res.ok) { const err = await res.json().catch(() => ({ detail: res.statusText })); throw new Error(err.detail || '生成失败') }

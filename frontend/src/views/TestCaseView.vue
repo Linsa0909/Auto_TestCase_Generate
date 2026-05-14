@@ -135,7 +135,9 @@ async function handleGenerate() {
     const fd = new FormData()
     fd.append('requirement_name', form.reqName.trim()); fd.append('description', form.desc.trim())
     fd.append('requirement_id', form.reqId.trim()); fd.append('group', form.group.trim()); fd.append('test_type', form.type)
-    for (const file of form.files) fd.append('files', file)
+    for (const file of form.files) {
+      if (file instanceof File) fd.append('files', file)
+    }
     const res = await fetch('/api/generate', { method: 'POST', body: fd })
     if (!res.ok) { const err = await res.json().catch(() => ({ detail: res.statusText })); throw new Error(err.detail || '生成失败') }
     result.value = await res.json()
