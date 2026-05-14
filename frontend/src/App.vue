@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-white text-zinc-900 font-sans selection:bg-indigo-500/15">
+  <div class="min-h-screen bg-black text-white font-sans selection:bg-indigo-500/30">
     <TopNavbar @toggle-settings="showSettings = !showSettings" />
 
     <main class="h-[calc(100vh-52px)]">
@@ -18,9 +18,9 @@
             :key="t.id"
             :class="[
               'pointer-events-auto px-5 py-3 rounded-lg text-sm border max-w-sm backdrop-blur-sm',
-              t.type === 'success' ? 'bg-white/95 border-emerald-300 text-emerald-700 shadow-lg' :
-              t.type === 'error'   ? 'bg-white/95 border-red-300 text-red-700 shadow-lg' :
-                                     'bg-white/95 border-zinc-300 text-zinc-700 shadow-lg',
+              t.type === 'success' ? 'bg-zinc-900/90 border-emerald-500/30 text-emerald-300' :
+              t.type === 'error'   ? 'bg-zinc-900/90 border-red-500/30 text-red-300' :
+                                     'bg-zinc-900/90 border-zinc-700 text-zinc-200',
             ]"
           >
             {{ t.message }}

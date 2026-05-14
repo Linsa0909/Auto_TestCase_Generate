@@ -7,19 +7,19 @@ html {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   scroll-behavior: smooth;
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   line-height: 1.6;
   font-size: 17px;
-  background: #ffffff;
-  color: #18181b;
+  background: #000000;
+  color: #ffffff;
 }
 
 ::selection {
-  background: rgba(99, 102, 241, 0.15);
+  background: rgba(99, 102, 241, 0.3);
 }
 
 /* --- Form Reset --- */
@@ -42,7 +42,7 @@ select {
   cursor: pointer;
 }
 
-/* --- Scrollbar (Light) --- */
+/* --- Scrollbar (Dark) --- */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -51,16 +51,16 @@ select {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d4d4d8;
+  background: #3f3f46;
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #a1a1aa;
+  background: #52525b;
 }
 
 /* --- Micro-dots Pattern --- */
 .micro-dots {
-  background-image: radial-gradient(circle, #d4d4d8 1px, transparent 1px);
+  background-image: radial-gradient(circle, #27272a 1px, transparent 1px);
   background-size: 20px 20px;
 }
 
@@ -93,8 +93,8 @@ select {
   to { transform: rotate(360deg); }
 }
 .spinner {
-  border: 2.5px solid #e4e4e7;
-  border-top-color: #18181b;
+  border: 2.5px solid #27272a;
+  border-top-color: #ffffff;
   border-radius: 50%;
   width: 32px;
   height: 32px;
