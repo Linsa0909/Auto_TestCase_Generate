@@ -58,29 +58,15 @@ class DevOpsClient:
     # --- Product (resolve bizId by name) ---
 
     async def find_product_id(self, product_name: str) -> str | None:
-        """Find product bizId by product name. Tries common product list APIs."""
-        # Try product list endpoint
-        try:
-            resp = await self._post("/api/product/getProductList", {
-                "page": {"pageNo": 1, "pageSize": 100},
-            })
-            items = resp.get("data", {}).get("items", []) or resp.get("data", [])
-            for item in items:
-                if item.get("name") == product_name or item.get("title") == product_name:
-                    return item.get("id") or item.get("ID")
-        except Exception:
-            pass
-
-        # Fallback: try another common pattern
-        try:
-            resp = await self._post("/api/project/list", {})
-            items = resp.get("data", [])
-            for item in items:
-                if item.get("name") == product_name or item.get("title") == product_name:
-                    return item.get("id") or item.get("ID")
-        except Exception:
-            pass
-
+        """Find product bizId by product name via productTreeList API."""
+        resp = await self._post("/api/scrum/product/productTreeList", {
+            "obj": {"status": "PROGRESS", "myCollectFlag": 0},
+            "page": {"pageSize": 100, "pageNo": 1},
+        })
+        items = resp.get("data", {}).get("items", []) or resp.get("data", [])
+        for item in items:
+            if item.get("name") == product_name:
+                return item.get("id")
         return None
 
     # --- Edition / Sprint (resolve by name) ---
