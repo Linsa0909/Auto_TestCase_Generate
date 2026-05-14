@@ -8,6 +8,14 @@ RUN npm run build
 FROM python:3.12-slim
 WORKDIR /app
 
+# Proxy args (build with: --build-arg HTTP_PROXY=http://host:port)
+ARG HTTP_PROXY
+ARG HTTPS_PROXY
+ARG http_proxy
+ARG https_proxy
+ENV HTTP_PROXY=${HTTP_PROXY} HTTPS_PROXY=${HTTPS_PROXY} \
+    http_proxy=${http_proxy} https_proxy=${https_proxy}
+
 # System deps for Playwright + OCR
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libnss3 libnspr4 libatk1.0-0t64 libatk-bridge2.0-0t64 \

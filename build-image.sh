@@ -15,7 +15,14 @@ echo "=========================================="
 echo "  第一阶段：构建镜像"
 echo "=========================================="
 echo ">>> docker build -t ${FULL_IMAGE} ."
-docker build -t "${FULL_IMAGE}" .
+# Auto-detect proxy for WSL
+_PROXY_ARGS=""
+_HOST_IP=$(ip route show default 2>/dev/null | awk '{print $3}' | head -1)
+if [ -n "$_HOST_IP" ]; then
+    _PROXY_ARGS="--build-arg HTTP_PROXY=http://${_HOST_IP}:7890 --build-arg HTTPS_PROXY=http://${_HOST_IP}:7890 --build-arg http_proxy=http://${_HOST_IP}:7890 --build-arg https_proxy=http://${_HOST_IP}:7890"
+    echo ">>> 使用代理: ${_HOST_IP}:7890"
+fi
+docker build ${_PROXY_ARGS} -t "${FULL_IMAGE}" .
 echo ""
 echo ">>> 构建完成: ${FULL_IMAGE}"
 echo ""
