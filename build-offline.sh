@@ -11,8 +11,11 @@ PYTHON_VERSION="3.12.13"
 PYTHON_RELEASE="20260510"
 PYTHON_BUILD="cpython-${PYTHON_VERSION}+${PYTHON_RELEASE}-x86_64-unknown-linux-gnu-install_only.tar.gz"
 PYTHON_URL_DIRECT="https://github.com/indygreg/python-build-standalone/releases/download/${PYTHON_RELEASE}/${PYTHON_BUILD}"
-PYTHON_URL_MIRROR="https://mirror.ghproxy.com/${PYTHON_URL_DIRECT}"
-PYTHON_URL="${PYTHON_URL_MIRROR}"
+PYTHON_URL_MIRRORS=(
+    "https://ghproxy.com/${PYTHON_URL_DIRECT}"
+    "https://mirror.ghproxy.com/${PYTHON_URL_DIRECT}"
+    "${PYTHON_URL_DIRECT}"
+)
 BUILD_DIR="build/offline-package"
 CACHE_DIR="build/cache"
 PACKAGE_DIR="${BUILD_DIR}/${PACKAGE_NAME}"
@@ -49,11 +52,18 @@ if [ -f "${CACHE_DIR}/${PYTHON_BUILD}" ]; then
 fi
 
 if [ ! -f "${CACHE_DIR}/${PYTHON_BUILD}" ]; then
-    # Try mirror first, then direct
-    _download_python "${PYTHON_URL_MIRROR}" || _download_python "${PYTHON_URL_DIRECT}" || {
-        echo "  [ERROR] 下载失败，请检查网络后重试"
+    # Try each mirror in order
+    _ok=0
+    for _url in "${PYTHON_URL_MIRRORS[@]}"; do
+        if _download_python "${_url}"; then
+            _ok=1
+            break
+        fi
+    done
+    if [ "$_ok" -eq 0 ]; then
+        echo "  [ERROR] 所有源下载失败，请检查网络后重试"
         exit 1
-    }
+    fi
 fi
 
 echo "  解压 Python..."
