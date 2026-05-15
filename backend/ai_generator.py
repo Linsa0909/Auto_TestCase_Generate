@@ -103,7 +103,7 @@ class AIGenerator:
                 {"role": "user", "content": user_prompt},
             ],
             "temperature": 0.2,
-            "max_tokens": 8192,
+            "max_tokens": 4096,
         }
         headers = {
             "Authorization": f"Bearer {self.api_key}",
@@ -112,7 +112,7 @@ class AIGenerator:
 
         logger.info(f"Calling {url} model={self.model}")
 
-        async with httpx.AsyncClient(timeout=180.0) as client:
+        async with httpx.AsyncClient(timeout=300.0) as client:
             resp = await client.post(url, json=payload, headers=headers)
 
         if resp.status_code != 200:

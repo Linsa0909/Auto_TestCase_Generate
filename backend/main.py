@@ -227,8 +227,8 @@ async def generate_test_cases(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Generation failed: {e}")
-        raise HTTPException(500, str(e))
+        logger.error(f"Generation failed [{type(e).__name__}]: {e}")
+        raise HTTPException(500, f"[{type(e).__name__}] {e}")
     finally:
         # Cleanup temp files
         shutil.rmtree(temp_dir, ignore_errors=True)
