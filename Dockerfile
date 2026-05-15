@@ -8,13 +8,11 @@ RUN npm run build
 FROM python:3.12-slim
 WORKDIR /app
 
-# Proxy args (build with: --build-arg HTTP_PROXY=http://host:port)
+# Proxy args — only for build stage, NOT persisted to runtime
 ARG HTTP_PROXY
 ARG HTTPS_PROXY
 ARG http_proxy
 ARG https_proxy
-ENV HTTP_PROXY=${HTTP_PROXY} HTTPS_PROXY=${HTTPS_PROXY} \
-    http_proxy=${http_proxy} https_proxy=${https_proxy}
 
 # System deps for Playwright + OCR
 RUN apt-get update && apt-get install -y --no-install-recommends \
