@@ -1,20 +1,26 @@
 FROM node:20-slim AS frontend-builder
 WORKDIR /app/frontend
+
+RUN npm config set registry https://registry.npmmirror.com
+
 COPY frontend/package*.json ./
 RUN npm ci
+
 COPY frontend/ ./
 RUN npm run build
 
 FROM python:3.12-slim
 WORKDIR /app
 
-# Proxy args — only for build stage, NOT persisted to runtime
+# Build args → ENV for build-time proxy (cleaned at end)
 ARG HTTP_PROXY
 ARG HTTPS_PROXY
 ARG http_proxy
 ARG https_proxy
+ENV HTTP_PROXY=${HTTP_PROXY} HTTPS_PROXY=${HTTPS_PROXY} http_proxy=${http_proxy} https_proxy=${https_proxy} \
+    no_proxy=deb.debian.org,debian.org,pypi.org,pythonhosted.org,files.pythonhosted.org,playwright.dev,cdn.playwright.dev
 
-# System deps for Playwright + OCR
+# 系统依赖 (Playwright) — apt 不走代理
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libnss3 libnspr4 libatk1.0-0t64 libatk-bridge2.0-0t64 \
     libcups2t64 libdrm2 libdbus-1-3 libxkbcommon0 \
@@ -22,9 +28,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxrandr2 libgbm1 libpango-1.0-0 libcairo2 libasound2t64 \
     && rm -rf /var/lib/apt/lists/*
 
+# pip + Playwright — 走代理
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt \
     && python -m playwright install chromium
+
+# 清理: 不保留代理到运行时
+ENV HTTP_PROXY="" HTTPS_PROXY="" http_proxy="" https_proxy="" no_proxy=""
 
 COPY backend/ ./
 COPY --from=frontend-builder /app/backend/static ./static
