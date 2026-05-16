@@ -146,7 +146,7 @@ function closePlan() {
   planListKey.value++
 }
 
-const settings = reactive({ api_key: '', api_base: 'https://api.deepseek.com/v1', model: 'deepseek-chat' })
+const settings = reactive({ api_key: '', api_base: 'https://api.deepseek.com', model: 'deepseek-chat' })
 const devopsSettings = reactive({ devops_url: '', devops_token: '', devops_username: '', devops_password: '', product_name: '' })
 const configMsg = ref(null)
 
@@ -154,7 +154,7 @@ async function loadSettings() {
   try {
     const res = await fetch('/api/config')
     const data = await res.json()
-    settings.api_base = data.api_base || 'https://api.deepseek.com/v1'
+    settings.api_base = data.api_base || 'https://api.deepseek.com'
     settings.model = data.model || 'deepseek-chat'
     settings.api_key = data.api_key || ''
   } catch {}

@@ -79,21 +79,27 @@ class AIGenerator:
         self.base_url = base_url.rstrip("/")
         self.model = model
 
-    async def generate(self, semantic_text: str, description: str,
-                       requirement_name: str = "") -> list:
+    async def generate(self, semantic_text: str = "", description: str = "",
+                       requirement_name: str = "", user_prompt: str = "") -> list:
         """
         Generate test cases via OpenAI-compatible chat completions API.
+
+        If `user_prompt` is provided, it's used directly (from prompt-engineer skill).
+        Otherwise, the old prompt format is used for backward compatibility.
         """
-        user_prompt = f"""【页面交互元素清单】：
+        if not user_prompt:
+            user_prompt = f"""【页面交互元素清单】：
 {semantic_text}
 
 【需求描述】：
 {description}
 """
-        if requirement_name:
-            user_prompt = f"【需求名称】：{requirement_name}\n\n" + user_prompt
-
-        user_prompt += "\n请立即生成纯JSON格式的测试用例数组。"
+            if requirement_name:
+                user_prompt = f"【需求名称】：{requirement_name}\n\n" + user_prompt
+            user_prompt += "\n请立即生成纯JSON格式的测试用例数组。"
+            logger.info("Using legacy prompt format")
+        else:
+            logger.info("Using skill-enhanced prompt from prompt-engineer")
 
         url = f"{self.base_url}/v1/chat/completions"
         payload = {
@@ -112,7 +118,7 @@ class AIGenerator:
 
         logger.info(f"Calling {url} model={self.model}")
 
-        async with httpx.AsyncClient(timeout=180.0) as client:
+        async with httpx.AsyncClient(timeout=300.0) as client:
             resp = await client.post(url, json=payload, headers=headers)
 
         if resp.status_code != 200:
