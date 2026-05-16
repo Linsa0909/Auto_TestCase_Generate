@@ -70,7 +70,7 @@ async def get_config():
     masked["configured"] = bool(config.get("api_key"))
     masked.setdefault("api_base", "")
     masked.setdefault("model", "deepseek-chat")
-    masked.setdefault("api_base", "https://api.deepseek.com/v1")
+    masked.setdefault("api_base", "https://api.deepseek.com")
     return masked
 
 
@@ -140,7 +140,7 @@ async def generate_test_cases(
         raise HTTPException(400, "请先在设置中配置 API 密钥")
 
     model = config.get("model", "deepseek-chat")
-    base_url = config.get("api_base", "https://api.deepseek.com/v1")
+    base_url = config.get("api_base", "https://api.deepseek.com")
 
     # Process uploaded files: extract and validate content
     semantic_parts = []  # list of {text, type, reliable, label, score}
