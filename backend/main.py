@@ -69,15 +69,15 @@ async def get_config():
         masked["api_key"] = key[:6] + "*" * (len(key) - 6) if len(key) > 6 else "***"
     masked["configured"] = bool(config.get("api_key"))
     masked.setdefault("api_base", "")
-    masked.setdefault("model", "GLM-5.1")
-    masked.setdefault("api_base", "http://172.16.3.6:8589")
+    masked.setdefault("model", "deepseek-chat")
+    masked.setdefault("api_base", "https://api.deepseek.com/v1")
     return masked
 
 
 class ConfigModel(BaseModel):
     api_key: str
     api_base: str = ""
-    model: str = "GLM-5.1"
+    model: str = "deepseek-chat"
 
 
 @app.put("/api/config")
@@ -90,6 +90,31 @@ async def save_config(body: ConfigModel):
     with open(CONFIG_FILE, "w", encoding="utf-8") as f:
         json.dump(config, f, indent=2, ensure_ascii=False)
     return {"status": "ok", "message": "配置已保存"}
+
+
+# --- Helper: split docx extraction into text / table / ocr parts ---
+def _split_docx_text(full_text: str) -> list[dict]:
+    """Split the combined docx extraction into separate structured parts."""
+    parts = []
+    # Split by section markers
+    sections = full_text.split("=== ")
+    for sec in sections:
+        sec = sec.strip()
+        if not sec:
+            continue
+        if sec.startswith("需求文档结构化内容"):
+            parts.append({"text": sec, "type": "docx_text", "label": "Word文档-结构化内容"})
+        elif sec.startswith("需求文档表格内容"):
+            parts.append({"text": sec, "type": "docx_table", "label": "Word文档-表格"})
+        elif sec.startswith("文档截图OCR识别结果"):
+            parts.append({"text": sec, "type": "ocr", "label": "Word文档-截图OCR"})
+        elif "OCR 图片识别结果" in sec:
+            parts.append({"text": sec, "type": "ocr", "label": "Word文档-截图OCR"})
+        else:
+            parts.append({"text": sec, "type": "docx_text", "label": "Word文档-内容"})
+    if not parts:
+        parts.append({"text": full_text, "type": "docx_text", "label": "Word文档"})
+    return parts
 
 
 # --- Generate Route ---
@@ -114,14 +139,16 @@ async def generate_test_cases(
     if not api_key:
         raise HTTPException(400, "请先在设置中配置 API 密钥")
 
-    model = config.get("model", "GLM-5.1")
-    base_url = config.get("api_base", "http://172.16.3.6:8589")
+    model = config.get("model", "deepseek-chat")
+    base_url = config.get("api_base", "https://api.deepseek.com/v1")
 
-    # Process uploaded files: extract HTML from ZIP or use directly
-    semantic_parts = []
+    # Process uploaded files: extract and validate content
+    semantic_parts = []  # list of {text, type, reliable, label, score}
     temp_dir = tempfile.mkdtemp(prefix="tci_")
 
     try:
+        from skills.content_validator import validate_extraction
+
         for upload in files:
             file_path = os.path.join(temp_dir, upload.filename or "upload.html")
             content = await upload.read()
@@ -135,8 +162,6 @@ async def generate_test_cases(
                 extract_dir = os.path.join(temp_dir, "extracted")
                 with zipfile.ZipFile(file_path, "r") as zf:
                     zf.extractall(extract_dir)
-
-                # Find entry HTML
                 html_path = None
                 for root, dirs, fnames in os.walk(extract_dir):
                     for name in fnames:
@@ -145,9 +170,7 @@ async def generate_test_cases(
                             break
                     if html_path:
                         break
-
                 if not html_path:
-                    # Try any HTML file
                     for root, dirs, fnames in os.walk(extract_dir):
                         for name in fnames:
                             if name.endswith(".html"):
@@ -155,55 +178,70 @@ async def generate_test_cases(
                                 break
                         if html_path:
                             break
-
                 if not html_path:
                     raise HTTPException(400, f"ZIP 中未找到 HTML 文件: {upload.filename}")
 
-            # Extract semantic text via Playwright (HTML files)
+            # Extract + validate HTML
             if html_path and html_path.lower().endswith(".html"):
                 logger.info(f"Extracting semantics from: {html_path}")
                 semantic = await extract_semantic(html_path)
                 if semantic:
-                    semantic_parts.append(semantic)
+                    q = validate_extraction(semantic, "html")
+                    semantic_parts.append({
+                        "text": semantic, "type": "html",
+                        "reliable": q["reliable"], "label": f"HTML原型-{upload.filename or 'page'}",
+                        "score": q["score"],
+                    })
 
-            # Extract text + OCR images from Word documents
+            # Extract + validate Word documents (split text and OCR sections)
             elif file_path.lower().endswith('.docx'):
                 logger.info(f"Extracting from Word document: {file_path}")
                 from docx_extractor import extract_docx
                 docx_text = await extract_docx(file_path)
                 if docx_text:
-                    semantic_parts.append(docx_text)
+                    # Split structured docx output into text and OCR parts
+                    doc_parts = _split_docx_text(docx_text)
+                    for dp in doc_parts:
+                        q = validate_extraction(dp["text"], dp.get("type", "docx"))
+                        dp["reliable"] = q["reliable"]
+                        dp["score"] = q["score"]
+                        semantic_parts.append(dp)
 
-            # Extract text from images via PaddleOCR
+            # Extract + validate images via OCR with quality enhancement
             elif file_path.lower().endswith(('.png', '.jpg', '.jpeg')):
                 logger.info(f"Extracting text via OCR from: {file_path}")
-                from ocr_extractor import extract_text
-                ocr_text = await extract_text(content)
-                if ocr_text:
-                    semantic_parts.append(ocr_text)
+                from skills.ocr_enhancer import ocr_with_quality
+                ocr_result = await ocr_with_quality(content, upload.filename or "image")
+                if ocr_result["text"] and "未识别" not in ocr_result["text"]:
+                    q = validate_extraction(ocr_result["text"], "ocr")
+                    semantic_parts.append({
+                        "text": ocr_result["text"], "type": "ocr",
+                        "reliable": q["reliable"] and not ocr_result["needs_review"],
+                        "label": f"OCR-{upload.filename or 'image'}",
+                        "score": min(q["score"], 80 if ocr_result["quality"] == "good" else 50),
+                    })
 
-        # Combine all semantic extractions
-        full_semantic = "\n\n".join(semantic_parts) if semantic_parts else "(无原型文件，仅基于需求描述生成)"
+        # No files: treat description as primary content
+        if not semantic_parts:
+            semantic_parts.append({
+                "text": "(无原型文件，仅基于需求描述生成)",
+                "type": "text", "reliable": True, "label": "纯文本描述", "score": 100,
+            })
 
-        # Build enhanced description with test type guidance
-        type_guidance = {
-            "全面覆盖": "请生成包含冒烟、功能、边界、异常的全覆盖测试用例。",
-            "仅冒烟": "请仅生成冒烟测试用例，验证核心功能是否可用。",
-            "边界异常": "请重点生成边界值测试和异常测试用例。",
-        }
-        guidance = type_guidance.get(test_type, "")
+        # === BUILD ENHANCED PROMPT via skills ===
+        from skills.prompt_engineer import build_enhanced_prompt
 
-        # When no text description provided, tell AI to rely on prototype/OCR
-        if not description.strip():
-            enhanced_desc = f"{guidance}\n\n（未提供需求描述文本，请严格基于上面的【页面交互元素清单】中提取的UI元素和页面信息来生成测试用例。分析每个控件、按钮、列表、输入框的功能，推导其交互逻辑并生成对应用例。）"
-        else:
-            enhanced_desc = f"{guidance}\n\n{description}" if guidance else description
+        enhanced_prompt = build_enhanced_prompt(
+            semantic_parts=semantic_parts,
+            description=description,
+            requirement_name=requirement_name.strip(),
+            test_type=test_type,
+        )
 
-        # Generate test cases via GLM
+        # Generate test cases
         ai = AIGenerator(api_key=api_key, base_url=base_url, model=model)
         test_cases = await ai.generate(
-            semantic_text=full_semantic,
-            description=enhanced_desc,
+            user_prompt=enhanced_prompt,
             requirement_name=requirement_name.strip(),
         )
 
@@ -227,8 +265,8 @@ async def generate_test_cases(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Generation failed: {e}")
-        raise HTTPException(500, str(e))
+        logger.error(f"Generation failed [{type(e).__name__}]: {e}")
+        raise HTTPException(500, f"[{type(e).__name__}] {e}")
     finally:
         # Cleanup temp files
         shutil.rmtree(temp_dir, ignore_errors=True)
