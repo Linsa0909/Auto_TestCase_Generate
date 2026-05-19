@@ -3,10 +3,26 @@ DevOps platform API client.
 All endpoints verified against test_interface.yaml.
 """
 
+import base64
 import logging
 import httpx
+from Crypto.Cipher import DES
 
 logger = logging.getLogger(__name__)
+
+# DES encryption for login password
+_DES_KEY = b"jly_auth"  # 8 bytes key
+
+
+def _des_encrypt(text: str) -> str:
+    """Encrypt password with DES-ECB + PKCS5 + base64."""
+    cipher = DES.new(_DES_KEY, DES.MODE_ECB)
+    data = text.encode("utf-8")
+    # PKCS5 padding
+    pad_len = 8 - (len(data) % 8)
+    data = data + bytes([pad_len]) * pad_len
+    encrypted = cipher.encrypt(data)
+    return base64.b64encode(encrypted).decode("utf-8")
 
 
 class DevOpsClient:
@@ -32,10 +48,11 @@ class DevOpsClient:
     # --- Auth ---
 
     async def login(self, username: str, password: str) -> str:
-        """Login and store token + userId from authUser."""
+        """Login with DES-encrypted password. Stores token + userId."""
+        encrypted_pwd = _des_encrypt(password)
         resp = await self._post("/api/auth/public/login", {
             "username": username,
-            "password": password,
+            "password": encrypted_pwd,
             "provider": "DEVOPS",
             "validFlag": True,
         })

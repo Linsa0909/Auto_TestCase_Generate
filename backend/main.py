@@ -496,8 +496,8 @@ async def push_to_devops(plan_id: str):
 
     if not devops_url:
         raise HTTPException(400, "请先在设置中配置 DevOps 平台地址")
-    if not devops_token and not devops_username:
-        raise HTTPException(400, "请先在设置中配置 Token 或用户名密码")
+    if not devops_username or not devops_password:
+        raise HTTPException(400, "请先在设置中配置 DevOps 用户名和密码")
     if not product_name:
         raise HTTPException(400, "请先在设置中配置产品名称")
 
@@ -510,14 +510,10 @@ async def push_to_devops(plan_id: str):
         _push_progress[plan_id] = {"step": step, "total": total, "message": message, "done": False, "result": None}
 
     try:
-        # Step 0: Login or use direct token
-        if devops_token:
-            client.token = devops_token
-            _push_progress[plan_id] = {"step": 2, "total": 10, "message": "已使用预设Token", "done": False, "result": None}
-        else:
-            token = await client.login(devops_username, devops_password)
-            if not token:
-                raise ValueError("登录失败，请检查用户名和密码")
+        # Step 0: Login (password auto-encrypted with DES)
+        token = await client.login(devops_username, devops_password)
+        if not token:
+            raise ValueError("登录失败，请检查用户名和密码")
 
         plan_title = f"{plan.get('product_name', '')} - {plan.get('iteration_name', '测试计划')}"
 
