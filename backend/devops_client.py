@@ -288,3 +288,81 @@ async def push_plan_to_devops(
         result["task_id"] = tid
 
     return result
+
+
+async def push_cases_to_devops(
+    client: DevOpsClient,
+    product_name: str,
+    requirement_name: str,
+    test_cases: list,
+    description: str = "",
+    group_name: str = "",
+    progress_callback=None,
+) -> dict:
+    """
+    Push test cases from TestCaseView to DevOps.
+    Creates: requirement group → story → case group → cases → bind.
+    Does NOT create test plan or test task.
+    """
+    total_steps = 6
+    result = {"story_id": "", "case_ids": []}
+
+    def step_msg(step, msg):
+        if progress_callback:
+            progress_callback(step, total_steps, msg)
+
+    # 1. Resolve product
+    step_msg(1, f"查找产品「{product_name}」...")
+    biz_id = await client.find_product_id(product_name)
+    if not biz_id:
+        raise ValueError(f"未找到产品「{product_name}」")
+    principal_id = client.user_id if client.user_id else "1"
+    gname = group_name or "默认分组"
+
+    # 2. Create requirement group + story
+    step_msg(2, "创建需求分组...")
+    gid = await client.find_group_id(biz_id, gname, "testStory")
+    if not gid:
+        gid = (await client.create_group(biz_id, gname, "testStory")).get("data")
+
+    step_msg(3, "创建测试需求...")
+    story_resp = await client.create_story(
+        biz_id=biz_id,
+        title=requirement_name,
+        description=description or f"<p>{requirement_name}</p>",
+        group_id=gid,
+        principal_id=principal_id,
+        priority=3,
+    )
+    story_id = story_resp.get("data")
+    result["story_id"] = story_id or ""
+
+    # 3. Create case group + cases
+    step_msg(4, "创建用例分组...")
+    cgid = await client.find_group_id(biz_id, gname, "testCase")
+    if not cgid:
+        cgid = (await client.create_group(biz_id, gname, "testCase")).get("data")
+
+    step_msg(5, f"创建测试用例 (共 {len(test_cases)} 条)...")
+    case_ids = []
+    for tc in test_cases:
+        steps = [{"description": s.get("step", ""), "expectResult": s.get("expected", "")}
+                 for s in tc.get("steps", [])]
+        if not steps:
+            steps = [{"description": tc.get("title", ""), "expectResult": "验证通过"}]
+        imp = "L0" if tc.get("priority") == "L0" else "L1"
+        cid = (await client.create_case(
+            biz_id=biz_id, title=tc.get("title", "未命名用例"),
+            steps=steps, importance=imp, test_group_id=cgid,
+            maintenance=principal_id,
+        )).get("data")
+        if cid:
+            case_ids.append(cid)
+            result["case_ids"].append(cid)
+
+    # 4. Bind cases to story
+    if story_id and case_ids:
+        step_msg(6, f"关联用例到需求 (共 {len(case_ids)} 条)...")
+        await client.bind_case_to_issue(story_id, case_ids)
+
+    return result

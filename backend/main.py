@@ -18,7 +18,7 @@ from pydantic import BaseModel
 from semantic_extractor import extract_semantic
 from ai_generator import AIGenerator
 from excel_writer import ExcelWriter
-from devops_client import DevOpsClient, push_plan_to_devops
+from devops_client import DevOpsClient, push_plan_to_devops, push_cases_to_devops
 
 # --- Configuration ---
 logging.basicConfig(level=logging.INFO)
@@ -496,8 +496,8 @@ async def push_to_devops(plan_id: str):
 
     if not devops_url:
         raise HTTPException(400, "请先在设置中配置 DevOps 平台地址")
-    if not devops_token and not devops_username:
-        raise HTTPException(400, "请先在设置中配置 Token 或用户名密码")
+    if not devops_username or not devops_password:
+        raise HTTPException(400, "请先在设置中配置 DevOps 用户名和密码")
     if not product_name:
         raise HTTPException(400, "请先在设置中配置产品名称")
 
@@ -510,14 +510,10 @@ async def push_to_devops(plan_id: str):
         _push_progress[plan_id] = {"step": step, "total": total, "message": message, "done": False, "result": None}
 
     try:
-        # Step 0: Login or use direct token
-        if devops_token:
-            client.token = devops_token
-            _push_progress[plan_id] = {"step": 2, "total": 10, "message": "已使用预设Token", "done": False, "result": None}
-        else:
-            token = await client.login(devops_username, devops_password)
-            if not token:
-                raise ValueError("登录失败，请检查用户名和密码")
+        # Step 0: Login (password auto-encrypted with DES)
+        token = await client.login(devops_username, devops_password)
+        if not token:
+            raise ValueError("登录失败，请检查用户名和密码")
 
         plan_title = f"{plan.get('product_name', '')} - {plan.get('iteration_name', '测试计划')}"
 
@@ -540,6 +536,57 @@ async def push_to_devops(plan_id: str):
 async def get_push_progress(plan_id: str):
     progress = _push_progress.get(plan_id, {"step": 0, "total": 8, "message": "等待开始", "done": True})
     return progress
+
+
+# --- Push Cases to DevOps (from TestCaseView) ---
+class PushCasesModel(BaseModel):
+    test_cases: list
+    requirement_name: str = ""
+    description: str = ""
+    group: str = ""
+
+
+@app.post("/api/push-cases-to-devops")
+async def push_cases_to_devops_route(body: PushCasesModel):
+    if not body.test_cases:
+        raise HTTPException(400, "没有可推送的测试用例")
+    if not body.requirement_name.strip():
+        raise HTTPException(400, "请填写需求名称")
+
+    devops_config = load_devops_config()
+    devops_url = devops_config.get("devops_url", "")
+    devops_username = devops_config.get("devops_username", "")
+    devops_password = devops_config.get("devops_password", "")
+    product_name = devops_config.get("product_name", "")
+
+    if not devops_url:
+        raise HTTPException(400, "请先在设置中配置 DevOps 平台地址")
+    if not devops_username or not devops_password:
+        raise HTTPException(400, "请先在设置中配置 DevOps 用户名和密码")
+    if not product_name:
+        raise HTTPException(400, "请先在设置中配置产品名称")
+
+    client = DevOpsClient(base_url=devops_url)
+
+    try:
+        token = await client.login(devops_username, devops_password)
+        if not token:
+            raise ValueError("登录失败，请检查用户名和密码")
+
+        result = await push_cases_to_devops(
+            client=client,
+            product_name=product_name,
+            requirement_name=body.requirement_name.strip(),
+            test_cases=body.test_cases,
+            description=body.description,
+            group_name=body.group,
+        )
+        return {"status": "ok", "result": result}
+    except Exception as e:
+        import traceback
+        logger.error(f"Push cases to DevOps failed:\n{traceback.format_exc()}")
+        msg = str(e) or type(e).__name__
+        raise HTTPException(500, f"推送失败: {msg}")
 
 
 # --- Plan CRUD ---
