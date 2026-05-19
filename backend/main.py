@@ -506,7 +506,7 @@ async def push_to_devops(plan_id: str):
     # Initialize progress tracking
     _push_progress[plan_id] = {"step": 0, "total": 10, "message": "登录中...", "done": False, "result": None}
 
-    async def progress_callback(step, total, message):
+    def progress_callback(step, total, message):
         _push_progress[plan_id] = {"step": step, "total": total, "message": message, "done": False, "result": None}
 
     try:
