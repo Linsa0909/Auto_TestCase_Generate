@@ -399,7 +399,7 @@ function parseImport() {
   let currentBlock = []
   for (const line of lines) {
     const trimmed = line.trim()
-    if (/^#\d{6}\b/.test(trimmed)) {
+    if (/^#\d+\b/.test(trimmed)) {
       if (currentBlock.length > 0) blocks.push(currentBlock)
       currentBlock = [trimmed]
     } else if (trimmed.length > 0) {
@@ -428,7 +428,7 @@ function parseRequirementBlock(lines) {
     if (!trimmed) continue
 
     // Extract ID from #NNNNNN
-    const idMatch = trimmed.match(/#(\d{6})/)
+    const idMatch = trimmed.match(/#(\d+)/)
     if (idMatch) { result.id = '#' + idMatch[1]; continue }
 
     // Detect metadata line: contains dates, sprint, or status keywords
