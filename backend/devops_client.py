@@ -71,20 +71,26 @@ class DevOpsClient:
             "page": {"pageSize": 100, "pageNo": 1},
         })
         items = resp.get("data", {}).get("items", []) or resp.get("data", [])
-        # 1. Exact match
-        for item in items:
-            if item.get("name") == product_name:
-                return item.get("id")
-        # 2. Contains match (case-insensitive)
-        lower_name = product_name.lower().strip()
-        for item in items:
-            item_name = (item.get("name") or "").lower()
-            if lower_name in item_name or item_name in lower_name:
-                logger.info(f"Fuzzy product match: {repr(item.get('name'))} ← {repr(product_name)}")
-                return item.get("id")
-        # Log all available products for debug
-        logger.warning(f"Product '{product_name}' not found. Available: {[i.get('name') for i in items[:10]]}")
-        return None
+
+        def search(nodes, depth=0):
+            for node in nodes:
+                if node.get("name") == product_name:
+                    return node.get("id")
+                n = (node.get("name") or "").lower()
+                p = product_name.lower().strip()
+                if p in n or n in p:
+                    logger.info(f"Fuzzy product match: {repr(node.get('name'))} depth={depth}")
+                    return node.get("id")
+                children = node.get("children") or []
+                result = search(children, depth + 1)
+                if result:
+                    return result
+            return None
+
+        result = search(items)
+        if not result:
+            logger.warning(f"Product '{product_name}' not found in tree")
+        return result
 
     # --- Test Group ---
 
