@@ -492,7 +492,7 @@ async def push_to_devops(plan_id: str):
     devops_token = devops_config.get("devops_token", "")
     devops_username = devops_config.get("devops_username", "")
     devops_password = devops_config.get("devops_password", "")
-    product_name = devops_config.get("product_name", "") or plan.get("product_name", "")
+    product_name = plan.get("product_name", "") or devops_config.get("product_name", "")
 
     if not devops_url:
         raise HTTPException(400, "请先在设置中配置 DevOps 平台地址")
