@@ -17,9 +17,15 @@
           placeholder="迭代名称 *"
           class="text-base font-semibold tracking-tight text-zinc-900 bg-transparent border-0 border-b border-transparent pb-0 focus:border-zinc-400 focus:outline-none transition-colors placeholder-zinc-400 w-36"
         />
-        <input type="date" v-model="planStartDate" class="text-xs text-zinc-500 bg-transparent px-2 py-1 rounded-md border border-zinc-200 hover:border-zinc-300 focus:border-zinc-400 focus:outline-none transition-colors [color-scheme:light] cursor-pointer" />
-        <span class="text-zinc-300 text-xs">至</span>
-        <input type="date" v-model="planEndDate" class="text-xs text-zinc-500 bg-transparent px-2 py-1 rounded-md border border-zinc-200 hover:border-zinc-300 focus:border-zinc-400 focus:outline-none transition-colors [color-scheme:light] cursor-pointer" />
+        <div class="flex items-center gap-1.5 text-sm">
+          <Calendar class="w-3.5 h-3.5 text-zinc-400" :stroke-width="1.5" />
+          <input type="date" v-model="planStartDate" class="text-sm text-zinc-700 bg-white px-2 py-1 rounded-lg border border-zinc-200 hover:border-zinc-300 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100 focus:outline-none transition-all [color-scheme:light] cursor-pointer w-[140px]" />
+        </div>
+        <span class="text-zinc-300 text-sm">—</span>
+        <div class="flex items-center gap-1.5 text-sm">
+          <Calendar class="w-3.5 h-3.5 text-zinc-400" :stroke-width="1.5" />
+          <input type="date" v-model="planEndDate" class="text-sm text-zinc-700 bg-white px-2 py-1 rounded-lg border border-zinc-200 hover:border-zinc-300 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100 focus:outline-none transition-all [color-scheme:light] cursor-pointer w-[140px]" />
+        </div>
         <div class="flex items-center gap-3 text-sm ml-3">
           <span class="text-zinc-500"><span class="text-zinc-900 font-semibold tabular-nums">{{ requirements.length }}</span> 需求</span>
           <span class="text-zinc-300">·</span>
@@ -290,7 +296,7 @@
 
 <script setup>
 import { ref, computed, inject, onMounted, watch } from 'vue'
-import { Sparkles, Download, X, ClipboardList, FileText, ChevronDown, ArrowLeft, Save, Upload } from 'lucide-vue-next'
+import { Sparkles, Download, X, ClipboardList, FileText, ChevronDown, ArrowLeft, Save, Upload, Calendar } from 'lucide-vue-next'
 import UploadZone from '../components/input/UploadZone.vue'
 
 const props = defineProps({ planId: { type: String, required: true } })
