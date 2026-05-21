@@ -206,6 +206,8 @@ async def push_plan_to_devops(
     product_name: str,
     plan_title: str = "测试计划",
     requirements: list = None,
+    start_date: str = "",
+    end_date: str = "",
     progress_callback=None,
 ) -> dict:
     requirements = requirements or []
@@ -294,17 +296,8 @@ async def push_plan_to_devops(
     for m in case_story_map:
         await client.bind_case_to_issue(m["story_id"], m["case_ids"])
 
-    # 6. Create plan (with dates from requirements)
+    # 6. Create plan
     step_msg(7, "创建测试计划...")
-    start_date = ""
-    end_date = ""
-    for req in requirements:
-        if req.get("startDate"):
-            if not start_date or req["startDate"] < start_date:
-                start_date = req["startDate"]
-        if req.get("endDate"):
-            if not end_date or req["endDate"] > end_date:
-                end_date = req["endDate"]
     plan_id = (await client.create_plan(
         biz_id=biz_id, title=plan_title, principal_id=principal_id,
         start_date=start_date, end_date=end_date,

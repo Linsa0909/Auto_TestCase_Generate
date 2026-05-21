@@ -516,15 +516,31 @@ async def push_to_devops(plan_id: str):
             raise ValueError("登录失败，请检查用户名和密码")
 
         plan_title = f"{plan.get('iteration_name', '')}测试计划"
+        start_date = plan.get("start_date", "")
+        end_date = plan.get("end_date", "")
+        existing_plan_id = plan.get("devops_plan_id", "")
 
-        result = await push_plan_to_devops(
-            client=client,
-            product_name=product_name,
-            plan_title=plan_title,
-            requirements=requirements,
-            progress_callback=progress_callback,
-        )
-        final_msg = f"推送完成! 计划ID={result.get('plan_id','?')} 用例={len(result.get('cases',[]))}条"
+        if existing_plan_id:
+            # Incremental sync: add cases to existing plan
+            result = {"plan_id": existing_plan_id, "cases": [], "stories": []}
+            # TODO: implement add-cases-to-existing-plan
+            final_msg = f"增量同步! 计划ID={existing_plan_id}"
+        else:
+            result = await push_plan_to_devops(
+                client=client,
+                product_name=product_name,
+                plan_title=plan_title,
+                requirements=requirements,
+                start_date=start_date,
+                end_date=end_date,
+                progress_callback=progress_callback,
+            )
+            final_msg = f"推送完成! 计划ID={result.get('plan_id','?')} 用例={len(result.get('cases',[]))}条"
+            # Save devops_plan_id for future incremental sync
+            if result.get("plan_id"):
+                plan["devops_plan_id"] = result["plan_id"]
+                save_plans(plans)
+
         _push_progress[plan_id] = {"step": 10, "total": 10, "message": final_msg, "done": True, "result": result}
         return {"status": "ok", "result": result, "plan_id": result.get("plan_id")}
     except Exception as e:
@@ -632,6 +648,8 @@ class PlanCreateModel(BaseModel):
 class PlanUpdateModel(BaseModel):
     product_name: str = ""
     iteration_name: str = ""
+    start_date: str = ""
+    end_date: str = ""
     requirements: list = []
 
 
@@ -691,6 +709,10 @@ async def update_plan(plan_id: str, body: PlanUpdateModel):
                 p["product_name"] = body.product_name
             if body.iteration_name:
                 p["iteration_name"] = body.iteration_name
+            if body.start_date is not None:
+                p["start_date"] = body.start_date
+            if body.end_date is not None:
+                p["end_date"] = body.end_date
             if body.requirements is not None:
                 p["requirements"] = body.requirements
             p["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

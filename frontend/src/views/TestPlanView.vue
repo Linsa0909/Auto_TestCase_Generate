@@ -17,7 +17,10 @@
           placeholder="迭代名称 *"
           class="text-base font-semibold tracking-tight text-zinc-900 bg-transparent border-0 border-b border-transparent pb-0 focus:border-zinc-400 focus:outline-none transition-colors placeholder-zinc-400 w-36"
         />
-        <div class="flex items-center gap-3 text-sm">
+        <input type="date" v-model="planStartDate" class="text-sm text-zinc-600 bg-transparent border-0 border-b border-zinc-200 pb-0 focus:border-zinc-400 focus:outline-none" />
+        <span class="text-zinc-400 text-xs">至</span>
+        <input type="date" v-model="planEndDate" class="text-sm text-zinc-600 bg-transparent border-0 border-b border-zinc-200 pb-0 focus:border-zinc-400 focus:outline-none" />
+        <div class="flex items-center gap-3 text-sm ml-3">
           <span class="text-zinc-500"><span class="text-zinc-900 font-semibold tabular-nums">{{ requirements.length }}</span> 需求</span>
           <span class="text-zinc-300">·</span>
           <span class="text-zinc-500"><span :class="completedCount === requirements.length && requirements.length > 0 ? 'text-zinc-900' : 'text-zinc-700'" class="font-semibold tabular-nums">{{ completedCount }}</span> 完成</span>
@@ -296,6 +299,8 @@ const toast = inject('toast')
 
 const productName = ref('')
 const iterationName = ref('')
+const planStartDate = ref('')
+const planEndDate = ref('')
 const importText = ref('')
 const importExpanded = ref(true)
 const saving = ref(false)
@@ -349,6 +354,8 @@ async function loadPlan() {
     const data = await res.json()
     productName.value = data.product_name || ''
     iterationName.value = data.iteration_name || ''
+    planStartDate.value = data.start_date || ''
+    planEndDate.value = data.end_date || ''
     // Filter out corrupted entries (empty name / NaN)
     const cleanReqs = (data.requirements || []).filter(r => {
       const name = String(r.name || '').trim()
@@ -379,7 +386,12 @@ async function savePlan() {
       body: JSON.stringify({
         product_name: productName.value.trim(),
         iteration_name: iterationName.value.trim(),
-        requirements: requirements.value.map(r => ({ ...r })),
+        start_date: planStartDate.value,
+        end_date: planEndDate.value,
+        requirements: requirements.value.map(r => ({
+          ...r,
+          files: (r.files || []).filter(f => typeof f === 'string' || f instanceof File === false)
+        })),
       }),
     })
     if (!res.ok) throw new Error('保存失败')
@@ -520,7 +532,12 @@ async function autoSave() {
       body: JSON.stringify({
         product_name: productName.value.trim(),
         iteration_name: iterationName.value.trim(),
-        requirements: requirements.value.map(r => ({ ...r })),
+        start_date: planStartDate.value,
+        end_date: planEndDate.value,
+        requirements: requirements.value.map(r => ({
+          ...r,
+          files: (r.files || []).filter(f => typeof f === 'string' || f instanceof File === false)
+        })),
       }),
     })
   } catch {}
