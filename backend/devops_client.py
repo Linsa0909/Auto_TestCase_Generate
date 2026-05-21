@@ -144,7 +144,8 @@ class DevOpsClient:
 
     async def create_case(self, biz_id: str, title: str, steps: list,
                           importance: str = "L1", test_group_id: str = "",
-                          maintenance: str = "", case_type: str = "manual") -> dict:
+                          maintenance: str = "", preconditions: str = "",
+                          case_type: str = "manual") -> dict:
         data = {
             "bizId": biz_id, "bizType": "product",
             "title": title, "importance": importance,
@@ -152,6 +153,7 @@ class DevOpsClient:
         }
         if test_group_id: data["testGroupId"] = test_group_id
         if maintenance: data["maintenance"] = maintenance
+        if preconditions: data["preconditions"] = preconditions
         return await self._post("/api/test/case/createTestCase", data)
 
     # --- Bind case to requirement ---
@@ -283,7 +285,7 @@ async def push_plan_to_devops(
             cid = (await client.create_case(
                 biz_id=biz_id, title=tc.get("title", "未命名用例"),
                 steps=steps, importance=imp, test_group_id=case_group_id,
-                maintenance=principal_id,
+                maintenance=principal_id, preconditions=tc.get("precondition", ""),
             )).get("data")
             if cid:
                 all_case_ids.append(cid)
@@ -387,7 +389,7 @@ async def push_cases_to_devops(
         cid = (await client.create_case(
             biz_id=biz_id, title=tc.get("title", "未命名用例"),
             steps=steps, importance=imp, test_group_id=cgid,
-            maintenance=principal_id,
+            maintenance=principal_id, preconditions=tc.get("precondition", ""),
         )).get("data")
         if cid:
             case_ids.append(cid)
