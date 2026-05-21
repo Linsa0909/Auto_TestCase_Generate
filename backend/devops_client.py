@@ -215,7 +215,7 @@ class DevOpsClient:
         search = sprint_name.lower().replace("sprint", "").strip()
         for item in items:
             d = item.get("data", {})
-            sprint = d.get("sprint", {})
+            sprint = d.get("sprint") or {}
             sid = sprint.get("id", "")
             sname = (sprint.get("name") or "").lower()
             if sid and sid not in seen and (search in sname or sname == f"sprint{search}"):

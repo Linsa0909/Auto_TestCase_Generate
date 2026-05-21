@@ -84,13 +84,20 @@
           <span v-if="result" class="text-xs text-zinc-400 tabular-nums">{{ result.test_cases?.length || 0 }} 条用例</span>
           <button v-if="historyActive" @click="clearHistoryView" class="text-xs text-zinc-400 hover:text-zinc-600 transition-colors">← 返回</button>
         </div>
-        <div v-if="result">
+        <div v-if="result" class="flex items-center gap-2">
           <button
             @click="handleExportEdited" :disabled="exporting"
             class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium border border-zinc-300 text-zinc-600 hover:border-zinc-400 hover:text-zinc-900 transition-colors active:scale-[0.98]"
           >
             <Download class="w-3.5 h-3.5" :stroke-width="2" />
             {{ exporting ? '导出中...' : '导出编辑结果' }}
+          </button>
+          <button
+            @click="pushCasesToDevops" :disabled="pushingCases"
+            class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium border border-indigo-400 text-indigo-600 hover:border-indigo-500 hover:text-indigo-700 transition-colors active:scale-[0.98]"
+          >
+            <CloudDownload class="w-3.5 h-3.5" :stroke-width="2" />
+            {{ pushingCases ? pushCasesMsg : '导入到 DevOps' }}
           </button>
         </div>
       </div>
@@ -114,7 +121,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, inject } from 'vue'
-import { Sparkles, Download, RefreshCw } from 'lucide-vue-next'
+import { Sparkles, Download, Upload, RefreshCw, CloudDownload } from 'lucide-vue-next'
 import MinimalInput from '../components/input/MinimalInput.vue'
 import MinimalSelect from '../components/input/MinimalSelect.vue'
 import UploadZone from '../components/input/UploadZone.vue'
@@ -161,6 +168,30 @@ async function handleExportEdited() {
     document.body.appendChild(a); a.click(); document.body.removeChild(a)
     toast(`已导出 ${data.count} 条测试用例`, 'success'); loadHistory()
   } catch (e) { toast(e.message, 'error') } finally { exporting.value = false }
+}
+
+const pushingCases = ref(false)
+const pushCasesMsg = ref('导入到 DevOps')
+async function pushCasesToDevops() {
+  if (!result.value?.test_cases?.length) { toast('没有可推送的用例', 'error'); return }
+  if (!form.reqName.trim()) { toast('请先在左侧填写需求名称', 'error'); return }
+  pushingCases.value = true; pushCasesMsg.value = '推送中...'
+  try {
+    const res = await fetch('/api/push-cases-to-devops', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        test_cases: result.value.test_cases,
+        requirement_name: form.reqName.trim(),
+        description: form.desc.trim(),
+        group: form.group.trim(),
+      }),
+    })
+    if (!res.ok) { const err = await res.json().catch(()=>({detail:res.statusText})); throw new Error(err.detail||'推送失败') }
+    const data = await res.json()
+    toast(`已导入 DevOps: ${data.result?.case_ids?.length||0} 条用例`, 'success')
+    pushCasesMsg.value = '推送完成'
+  } catch (e) { toast(e.message, 'error'); pushCasesMsg.value = '导入到 DevOps' }
+  finally { pushingCases.value = false }
 }
 
 const history = ref([])
