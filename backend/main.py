@@ -611,7 +611,9 @@ async def sync_stories_from_devops(body: SyncStoriesModel):
     if not biz_id: raise HTTPException(400, f"未找到产品: {pname}")
 
     result = await client.get_story_list(biz_id, body.sprint_ids)
-    items = result.get("data", {}).get("items", [])
+    data = result.get("data", {})
+    items = data.get("items", [])
+    logger.info(f"DevOps Sync: biz_id={biz_id} sprints={body.sprint_ids} total={data.get('totalRows')} returned={len(items)}")
     stories = []
     for item in items:
         d = item.get("data", {})
@@ -630,6 +632,7 @@ async def sync_stories_from_devops(body: SyncStoriesModel):
             "start_date": d.get("startDate"),
             "end_date": d.get("endDate"),
         })
+    logger.info(f"DevOps Sync result: parsed={len(stories)} stories")
     return {"biz_id": biz_id, "count": len(stories), "stories": stories}
 
 
