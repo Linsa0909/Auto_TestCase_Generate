@@ -596,7 +596,7 @@ class SyncStoriesModel(BaseModel):
 
 @app.post("/api/devops-sync-stories")
 async def sync_stories_from_devops(body: SyncStoriesModel):
-    sprint_name = body.product_name or ""  # reuse field for sprint name input
+    sprint_name = body.sprint_name or ""
     devops_config = load_devops_config()
     devops_url = devops_config.get("devops_url", "")
     devops_username = devops_config.get("devops_username", "")
