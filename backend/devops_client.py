@@ -208,6 +208,7 @@ async def push_plan_to_devops(
     requirements: list = None,
     start_date: str = "",
     end_date: str = "",
+    existing_plan_id: str = "",
     progress_callback=None,
 ) -> dict:
     requirements = requirements or []
@@ -296,12 +297,16 @@ async def push_plan_to_devops(
     for m in case_story_map:
         await client.bind_case_to_issue(m["story_id"], m["case_ids"])
 
-    # 6. Create plan
-    step_msg(7, "创建测试计划...")
-    plan_id = (await client.create_plan(
-        biz_id=biz_id, title=plan_title, principal_id=principal_id,
-        start_date=start_date, end_date=end_date,
-    )).get("data")
+    # 6. Create plan (or reuse existing)
+    if existing_plan_id:
+        plan_id = existing_plan_id
+        step_msg(7, f"复用已有测试计划: {plan_id}")
+    else:
+        step_msg(7, "创建测试计划...")
+        plan_id = (await client.create_plan(
+            biz_id=biz_id, title=plan_title, principal_id=principal_id,
+            start_date=start_date, end_date=end_date,
+        )).get("data")
     result["plan_id"] = plan_id
 
     # 7. Add cases to plan
@@ -309,9 +314,8 @@ async def push_plan_to_devops(
         step_msg(7, f"添加用例到计划 (共 {len(all_case_ids)} 条)...")
         await client.set_cases_to_plan(plan_id, all_case_ids)
 
-    # 8. Create task
-    step_msg(8, "创建测试任务...")
-    if plan_id and all_case_ids:
+    # 8. Create task (skip for incremental)
+    if not existing_plan_id and plan_id and all_case_ids:
         tid = (await client.create_task(plan_id=plan_id, name=f"{plan_title} - 测试任务",
                                          case_ids=all_case_ids)).get("data")
         result["task_id"] = tid

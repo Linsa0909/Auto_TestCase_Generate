@@ -521,10 +521,18 @@ async def push_to_devops(plan_id: str):
         existing_plan_id = plan.get("devops_plan_id", "")
 
         if existing_plan_id:
-            # Incremental sync: add cases to existing plan
-            result = {"plan_id": existing_plan_id, "cases": [], "stories": []}
-            # TODO: implement add-cases-to-existing-plan
-            final_msg = f"增量同步! 计划ID={existing_plan_id}"
+            # Incremental sync: create stories+cases, add to existing plan
+            result = await push_plan_to_devops(
+                client=client,
+                product_name=product_name,
+                plan_title=plan_title,
+                requirements=requirements,
+                start_date=start_date,
+                end_date=end_date,
+                existing_plan_id=existing_plan_id,
+                progress_callback=progress_callback,
+            )
+            final_msg = f"增量同步! 计划ID={existing_plan_id} 新增用例={len(result.get('cases',[]))}条"
         else:
             result = await push_plan_to_devops(
                 client=client,
