@@ -515,7 +515,7 @@ async def push_to_devops(plan_id: str):
         if not token:
             raise ValueError("登录失败，请检查用户名和密码")
 
-        plan_title = f"{plan.get('product_name', '')} - {plan.get('iteration_name', '测试计划')}"
+        plan_title = f"{plan.get('iteration_name', '')}测试计划"
 
         result = await push_plan_to_devops(
             client=client,
