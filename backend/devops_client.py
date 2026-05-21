@@ -70,8 +70,7 @@ class DevOpsClient:
             "obj": {"status": "PROGRESS", "myCollectFlag": 0},
             "page": {"pageSize": 100, "pageNo": 1},
         })
-        data = resp.get("data") or {}
-        items = data.get("items") or []
+        items = resp.get("data", {}).get("items", []) or resp.get("data", [])
 
         def search(nodes, depth=0):
             for node in nodes:
@@ -113,8 +112,7 @@ class DevOpsClient:
         if group_type == "testCase":
             data["testUsedPlace"] = "case"
         result = await self._post("/api/test/group/queryTestGroupTree", data)
-        data = result.get("data")
-        return data if isinstance(data, list) else []
+        return result.get("data", [])
 
     async def find_group_id(self, biz_id: str, name: str, group_type: str) -> str | None:
         groups = await self.query_group_tree(biz_id, group_type)
