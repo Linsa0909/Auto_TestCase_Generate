@@ -238,8 +238,11 @@ async def generate_test_cases(
             test_type=test_type,
         )
 
-        # Generate test cases
+        # Generate test cases with few-shot examples
         ai = AIGenerator(api_key=api_key, base_url=base_url, model=model)
+        few_shot = ai._get_few_shot_examples(requirement_name.strip(), description)
+        if few_shot:
+            enhanced_prompt = few_shot + "\n" + enhanced_prompt
         test_cases = await ai.generate(
             user_prompt=enhanced_prompt,
             requirement_name=requirement_name.strip(),
@@ -582,6 +585,100 @@ async def get_devops_plan_list(product_name: str = ""):
     if not biz_id: raise HTTPException(400, f"未找到产品: {pname}")
     result = await client.get_plan_list(biz_id, page_size=50)
     return {"product": pname, "biz_id": biz_id, "plans": result.get("data")}
+
+
+# --- Sync Stories from DevOps ---
+class SyncStoriesModel(BaseModel):
+    sprint_ids: list = []
+    product_name: str = ""
+
+
+@app.post("/api/devops-sync-stories")
+async def sync_stories_from_devops(body: SyncStoriesModel):
+    if not body.sprint_ids:
+        raise HTTPException(400, "请提供迭代ID列表")
+    devops_config = load_devops_config()
+    devops_url = devops_config.get("devops_url", "")
+    devops_username = devops_config.get("devops_username", "")
+    devops_password = devops_config.get("devops_password", "")
+    if not devops_url: raise HTTPException(400, "请先配置 DevOps")
+    client = DevOpsClient(base_url=devops_url)
+    token = await client.login(devops_username, devops_password)
+    if not token: raise HTTPException(400, "登录失败")
+    pname = body.product_name or devops_config.get("product_name", "")
+    if not pname: raise HTTPException(400, "请提供产品名称")
+    biz_id = await client.find_product_id(pname)
+    if not biz_id: raise HTTPException(400, f"未找到产品: {pname}")
+
+    result = await client.get_story_list(biz_id, body.sprint_ids)
+    items = result.get("data", {}).get("items", [])
+    stories = []
+    for item in items:
+        d = item.get("data", {})
+        sprint = d.get("sprint", {})
+        stories.append({
+            "id": str(item.get("id")),
+            "title": item.get("title", ""),
+            "description": d.get("description", ""),
+            "priority": d.get("priorityObj", {}).get("name", ""),
+            "status": d.get("status", {}).get("name", ""),
+            "owner": d.get("owner", {}).get("name", ""),
+            "sprint_name": sprint.get("name", ""),
+            "sprint_id": sprint.get("id", ""),
+            "principal": (d.get("principal") or {}).get("name", ""),
+            "tester": (d.get("tester") or {}).get("name", ""),
+            "start_date": d.get("startDate"),
+            "end_date": d.get("endDate"),
+        })
+    return {"biz_id": biz_id, "count": len(stories), "stories": stories}
+
+
+class SyncStoryDetailModel(BaseModel):
+    story_id: str = ""
+
+
+@app.post("/api/devops-sync-story-detail")
+async def sync_story_detail(body: SyncStoryDetailModel):
+    """Pull single story detail + download attachments, save as requirement block."""
+    if not body.story_id:
+        raise HTTPException(400, "请提供 story_id")
+    devops_config = load_devops_config()
+    devops_url = devops_config.get("devops_url", "")
+    devops_username = devops_config.get("devops_username", "")
+    devops_password = devops_config.get("devops_password", "")
+    if not devops_url: raise HTTPException(400, "请先配置 DevOps")
+    client = DevOpsClient(base_url=devops_url)
+    token = await client.login(devops_username, devops_password)
+    if not token: raise HTTPException(400, "登录失败")
+
+    detail = await client.get_story_detail(body.story_id)
+    data = detail.get("data", {})
+    desc_html = data.get("description", "")
+    # Strip HTML tags for plain text description
+    import re
+    desc_text = re.sub(r'<[^>]+>', '', desc_html).strip()
+
+    # Extract file URLs from description
+    file_urls = re.findall(r'/api/common/public/file/downloadByInodeId\?fileInodeId=(\d+)', desc_html)
+
+    return {
+        "id": str(data.get("id")),
+        "title": data.get("title", ""),
+        "description_html": desc_html,
+        "description_text": desc_text,
+        "file_count": len(file_urls),
+        "file_inode_ids": file_urls,
+        "priority": data.get("priorityObj", {}).get("name", ""),
+        "status": data.get("status", {}).get("name", ""),
+        "sprint": data.get("sprint", {}),
+        "owner": data.get("owner", {}).get("name", ""),
+        "principal": (data.get("principal") or {}).get("name", ""),
+        "tester": (data.get("tester") or {}).get("name", ""),
+        "start_date": data.get("startDate"),
+        "end_date": data.get("endDate"),
+        "files": data.get("files", []),
+        "devops_story_id": str(data.get("id")),
+    }
 
 
 # --- Push Cases to DevOps (from TestCaseView) ---

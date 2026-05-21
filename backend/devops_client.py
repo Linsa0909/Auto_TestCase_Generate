@@ -201,6 +201,36 @@ class DevOpsClient:
         })
 
 
+    # --- Issue/Story sync (pull from DevOps) ---
+
+    async def get_story_list(self, biz_id: str, sprint_ids: list, page_no: int = 1, page_size: int = 50) -> dict:
+        """Get story list for a product iteration."""
+        return await self._post("/api/scrum/issue/getIssueTreeList", {
+            "obj": {
+                "bizId": biz_id, "list": False,
+                "productWorkItem": {"type": "story", "sprintIds": sprint_ids},
+                "type": "productWorkItem", "overDate": False, "relateToMe": False,
+                "customFormFilter": {},
+            },
+            "page": {"pageNo": page_no, "pageSize": page_size},
+        })
+
+    async def get_story_detail(self, story_id: str) -> dict:
+        """Get full story detail including description and files."""
+        resp = await self._get(f"/api/scrum/issue/issueDetail?id={story_id}&bizType=product")
+        return resp
+
+    async def download_file(self, file_inode_id: str) -> bytes:
+        """Download a file attachment from DevOps."""
+        url = f"{self.base_url}/api/common/public/file/downloadByInodeId?fileInodeId={file_inode_id}&tenantId=1"
+        headers = {**self.headers}
+        if self.token:
+            headers["authorization"] = self.token
+        async with httpx.AsyncClient(timeout=60) as client:
+            resp = await client.get(url, headers=headers)
+            resp.raise_for_status()
+            return resp.content
+
 # --- Full push workflow ---
 
 async def push_plan_to_devops(

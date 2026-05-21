@@ -79,6 +79,56 @@ class AIGenerator:
         self.base_url = base_url.rstrip("/")
         self.model = model
 
+    @staticmethod
+    def _get_few_shot_examples(product_name: str, keyword: str = "", max_examples: int = 3) -> str:
+        """Retrieve similar historical test cases for few-shot prompting."""
+        import json
+        from pathlib import Path
+        plans_file = Path(__file__).resolve().parent / "data" / "plans.json"
+        if not plans_file.exists():
+            return ""
+        try:
+            with open(plans_file, "r", encoding="utf-8") as f:
+                plans = json.load(f)
+        except Exception:
+            return ""
+
+        candidates = []
+        keywords = keyword.lower().split() if keyword else []
+        for plan in plans:
+            pname = plan.get("product_name", "").lower()
+            for req in plan.get("requirements", []):
+                if req.get("status") != "done":
+                    continue
+                cases = req.get("testCases", [])
+                if not cases:
+                    continue
+                # Score: same product = +10, keyword match = +1 per word
+                score = 10 if pname and pname in product_name.lower() else 0
+                req_name = req.get("name", "").lower()
+                for kw in keywords:
+                    if kw in req_name:
+                        score += 1
+                if score > 0 or pname:
+                    for tc in cases[:2]:  # Take top 2 cases per requirement
+                        candidates.append((score, tc))
+
+        candidates.sort(key=lambda x: x[0], reverse=True)
+        selected = [c[1] for c in candidates[:max_examples] if c[1].get("steps")]
+
+        if not selected:
+            return ""
+
+        lines = ["\n=== 参考示例：同产品历史用例 ===\n"]
+        for i, tc in enumerate(selected, 1):
+            lines.append(f"[示例{i}] {tc.get('title', '')}")
+            for step in tc.get("steps", [])[:3]:
+                lines.append(f"  步骤: {step.get('step', '')}")
+                lines.append(f"  预期: {step.get('expected', '')}")
+            lines.append("")
+        lines.append("请参考以上用例的风格和粒度生成新的测试用例。\n")
+        return "\n".join(lines)
+
     async def generate(self, semantic_text: str = "", description: str = "",
                        requirement_name: str = "", user_prompt: str = "") -> list:
         """
