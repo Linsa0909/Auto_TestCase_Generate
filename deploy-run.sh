@@ -1,7 +1,6 @@
 #!/bin/bash
 # ==========================================
-#  Test Case Intelligence - 一键部署运行
-#  同事拿到镜像后执行此脚本
+#  Test Case Intelligence - Docker 一键部署
 # ==========================================
 set -e
 
@@ -12,12 +11,11 @@ DATA_DIR="./data"
 echo "=========================================="
 echo "  Test Case Intelligence 部署"
 echo "=========================================="
-echo ""
 
-# 确保数据目录存在
+# 数据目录
 mkdir -p "${DATA_DIR}/output"
 
-# 停止并删除旧容器（如果存在）
+# 停止旧容器
 if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
     echo ">>> 停止旧容器..."
     docker stop "${CONTAINER_NAME}" 2>/dev/null || true
@@ -40,6 +38,6 @@ echo "  前端页面: http://localhost:8000"
 echo "  API 文档: http://localhost:8000/docs"
 echo "=========================================="
 echo ""
-echo "  查看日志: docker logs -f ${CONTAINER_NAME}"
-echo "  停止服务: docker stop ${CONTAINER_NAME}"
-echo "  重启服务: docker restart ${CONTAINER_NAME}"
+echo "  docker logs -f ${CONTAINER_NAME}    # 查看日志"
+echo "  docker stop ${CONTAINER_NAME}       # 停止"
+echo "  docker restart ${CONTAINER_NAME}    # 重启"

@@ -94,10 +94,10 @@ def validate_extraction(semantic_text: str, source_label: str = "") -> dict:
         "suggestion": "; ".join(warnings) if warnings else "内容质量良好",
     }
 
-    logger.info(
-        f"[{source_type}] score={score} lines={total} reliable={reliable} "
-        f"warnings={len(warnings)} | {result['suggestion'][:100]}"
-    )
+    if warnings or not reliable:
+        logger.warning(f"[{source_type}] score={score} {'⚠️ '+'; '.join(warnings)}")
+    else:
+        logger.debug(f"[{source_type}] OK score={score} lines={total}")
 
     return result
 

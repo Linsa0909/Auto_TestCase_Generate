@@ -118,8 +118,18 @@ class AIGenerator:
 
         logger.info(f"Calling {url} model={self.model}")
 
-        async with httpx.AsyncClient(timeout=300.0) as client:
-            resp = await client.post(url, json=payload, headers=headers)
+        try:
+            async with httpx.AsyncClient(timeout=300.0) as client:
+                resp = await client.post(url, json=payload, headers=headers)
+        except httpx.ConnectError as e:
+            logger.error(f"API连接失败: {e}")
+            raise Exception(f"无法连接到AI服务 ({url})，请检查网络连接或代理设置")
+        except httpx.ConnectTimeout as e:
+            logger.error(f"API连接超时: {e}")
+            raise Exception(f"连接AI服务超时 ({url})，请检查网络连接或代理设置")
+        except httpx.ReadTimeout as e:
+            logger.error(f"API读取超时: {e}")
+            raise Exception("AI服务响应超时，请重试")
 
         if resp.status_code != 200:
             logger.error(f"API error {resp.status_code}: {resp.text[:500]}")

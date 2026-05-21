@@ -19,22 +19,16 @@ def get_skill_logger(skill_name: str) -> logging.Logger:
     logger.setLevel(logging.INFO)
     logger.propagate = False  # don't duplicate to root logger
 
-    # File handler
+    # File handler — keep detailed records
     fh = logging.FileHandler(log_file, encoding="utf-8")
-    fh.setLevel(logging.INFO)
-    fh.setFormatter(logging.Formatter(
-        "[%(asctime)s] %(levelname)s %(message)s",
-        datefmt="%H:%M:%S"
-    ))
+    fh.setLevel(logging.DEBUG)
+    fh.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s %(message)s", datefmt="%H:%M:%S"))
     logger.addHandler(fh)
 
-    # Also log to console for dev visibility
+    # Console — only show warnings/errors
     ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    ch.setFormatter(logging.Formatter(
-        "[%(asctime)s] %(levelname)s %(message)s",
-        datefmt="%H:%M:%S"
-    ))
+    ch.setLevel(logging.WARNING)
+    ch.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s %(message)s", datefmt="%H:%M:%S"))
     logger.addHandler(ch)
 
     return logger

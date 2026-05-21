@@ -1,3 +1,8 @@
+# ==========================================
+#  Test Case Intelligence - K8s 部署 (Venus)
+#  端口映射: NodePort 30105 → container 8000
+# ==========================================
+---
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -34,7 +39,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: test-case-intel:latest  # 替换为你的镜像地址
+          image: test-case-intel:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
@@ -77,8 +82,9 @@ metadata:
 spec:
   selector:
     app: test-case-intel
+  type: NodePort
   ports:
     - port: 8000
       targetPort: 8000
+      nodePort: 30105
       name: http
-  type: ClusterIP

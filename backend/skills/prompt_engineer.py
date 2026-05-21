@@ -84,11 +84,9 @@ def build_enhanced_prompt(
 
     prompt = "\n".join(sections)
 
-    # Log summary
-    logger.info(
-        f"提示词构建完成 | 总长度={len(prompt)}字符 | "
-        f"高可信块={len(reliable_parts)} 低可信块={len(uncertain_parts)} | "
-        f"测试类型={test_type} | 需求名={requirement_name[:30]}"
+    # Log only key stats for debugging
+    logger.debug(
+        f"Prompt: {len(prompt)}chars | reliable={len(reliable_parts)} uncertain={len(uncertain_parts)} | {test_type}"
     )
 
     return prompt
