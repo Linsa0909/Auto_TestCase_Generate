@@ -81,6 +81,11 @@
               class="px-5 py-3 rounded-lg text-sm font-medium text-zinc-600 border border-zinc-300 hover:border-zinc-400 hover:text-zinc-900 transition-colors whitespace-nowrap">
               手动添加
             </button>
+            <button @click="syncFromDevops" :disabled="syncingDevops"
+              class="px-5 py-3 rounded-lg text-sm font-medium text-indigo-600 border border-indigo-300 hover:border-indigo-400 hover:text-indigo-700 transition-colors whitespace-nowrap flex items-center gap-1">
+              <CloudDownload class="w-4 h-4" :stroke-width="2" />
+              {{ syncingDevops ? '同步中...' : '从DevOps同步' }}
+            </button>
           </div>
         </div>
       </div>
@@ -296,7 +301,7 @@
 
 <script setup>
 import { ref, computed, inject, onMounted, watch } from 'vue'
-import { Sparkles, Download, X, ClipboardList, FileText, ChevronDown, ArrowLeft, Save, Upload, Calendar } from 'lucide-vue-next'
+import { Sparkles, Download, X, ClipboardList, FileText, ChevronDown, ArrowLeft, Save, Upload, Calendar, CloudDownload } from 'lucide-vue-next'
 import UploadZone from '../components/input/UploadZone.vue'
 
 const props = defineProps({ planId: { type: String, required: true } })
@@ -491,6 +496,46 @@ function parseRequirementBlock(lines) {
 function addEmptyRow() {
   requirements.value.push({ id: '', name: '新需求', group: '', testType: '全面覆盖', startDate: '', endDate: '', owner: '', workStatus: '', description: '', files: [], status: 'pending', testCases: [] })
   selectedIdx.value = requirements.value.length - 1
+}
+
+const syncingDevops = ref(false)
+async function syncFromDevops() {
+  syncingDevops.value = true
+  try {
+    const res = await fetch('/api/devops-sync-stories', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sprint_ids: [importText.value.trim()],
+        product_name: productName.value.trim(),
+      }),
+    })
+    if (!res.ok) { const err = await res.json().catch(()=>({detail:res.statusText})); throw new Error(err.detail||'同步失败') }
+    const data = await res.json()
+    const stories = data.stories || []
+    let imported = 0
+    for (const s of stories) {
+      const existing = requirements.value.find(r => String(r.devops_story_id) === String(s.id))
+      if (existing) continue // skip duplicates
+      requirements.value.push({
+        id: '#' + s.id.slice(-6),
+        name: s.title,
+        group: productName.value.trim().slice(0, 4),
+        owner: s.principal || s.tester || '',
+        workStatus: s.status,
+        description: (s.description || '').replace(/<[^>]+>/g, '').trim(),
+        files: [],
+        status: 'pending',
+        testCases: [],
+        testType: '全面覆盖',
+        startDate: s.start_date ? new Date(s.start_date).toISOString().slice(0,10) : '',
+        endDate: s.end_date ? new Date(s.end_date).toISOString().slice(0,10) : '',
+        devops_story_id: s.id,
+      })
+      imported++
+    }
+    toast(`已从DevOps同步 ${imported} 个需求`, 'success')
+  } catch (e) { toast(e.message, 'error') }
+  finally { syncingDevops.value = false }
 }
 
 function removeRequirement(idx) {
