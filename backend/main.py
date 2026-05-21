@@ -524,8 +524,9 @@ async def push_to_devops(plan_id: str):
             requirements=requirements,
             progress_callback=progress_callback,
         )
-        _push_progress[plan_id] = {"step": 10, "total": 10, "message": "推送完成", "done": True, "result": result}
-        return {"status": "ok", "result": result}
+        final_msg = f"推送完成! 计划ID={result.get('plan_id','?')} 用例={len(result.get('cases',[]))}条"
+        _push_progress[plan_id] = {"step": 10, "total": 10, "message": final_msg, "done": True, "result": result}
+        return {"status": "ok", "result": result, "plan_id": result.get("plan_id")}
     except Exception as e:
         import traceback
         logger.error(f"Push to DevOps TRACEBACK:\n{traceback.format_exc()}")
@@ -538,6 +539,25 @@ async def push_to_devops(plan_id: str):
 async def get_push_progress(plan_id: str):
     progress = _push_progress.get(plan_id, {"step": 0, "total": 8, "message": "等待开始", "done": True})
     return progress
+
+
+@app.get("/api/devops-plans")
+async def get_devops_plan_list(product_name: str = ""):
+    """查询 DevOps 平台上的测试计划列表"""
+    devops_config = load_devops_config()
+    devops_url = devops_config.get("devops_url", "")
+    devops_username = devops_config.get("devops_username", "")
+    devops_password = devops_config.get("devops_password", "")
+    if not devops_url: raise HTTPException(400, "请先配置 DevOps 平台地址")
+    client = DevOpsClient(base_url=devops_url)
+    token = await client.login(devops_username, devops_password)
+    if not token: raise HTTPException(400, "登录失败")
+    pname = product_name or devops_config.get("product_name", "")
+    if not pname: raise HTTPException(400, "请提供 product_name 参数")
+    biz_id = await client.find_product_id(pname)
+    if not biz_id: raise HTTPException(400, f"未找到产品: {pname}")
+    result = await client.get_plan_list(biz_id, page_size=50)
+    return {"product": pname, "biz_id": biz_id, "plans": result.get("data")}
 
 
 # --- Push Cases to DevOps (from TestCaseView) ---

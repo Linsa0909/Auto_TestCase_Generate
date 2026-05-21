@@ -163,6 +163,13 @@ class DevOpsClient:
 
     # --- Test Plan ---
 
+    async def get_plan_list(self, biz_id: str, page_no: int = 1, page_size: int = 10) -> dict:
+        """Query test plan list for a product."""
+        return await self._post("/api/test/bizplan/getBizPlanList", {
+            "obj": {"bizId": biz_id, "bizType": "product"},
+            "page": {"pageNo": page_no, "pageSize": page_size},
+        })
+
     async def create_plan(self, biz_id: str, title: str, principal_id: str = "",
                           sprint_id: str = "", edition_id: str = "",
                           start_date: str = "", end_date: str = "") -> dict:
