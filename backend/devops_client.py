@@ -287,9 +287,21 @@ async def push_plan_to_devops(
     for m in case_story_map:
         await client.bind_case_to_issue(m["story_id"], m["case_ids"])
 
-    # 6. Create plan
+    # 6. Create plan (with dates from requirements)
     step_msg(7, "创建测试计划...")
-    plan_id = (await client.create_plan(biz_id=biz_id, title=plan_title, principal_id=principal_id)).get("data")
+    start_date = ""
+    end_date = ""
+    for req in requirements:
+        if req.get("startDate"):
+            if not start_date or req["startDate"] < start_date:
+                start_date = req["startDate"]
+        if req.get("endDate"):
+            if not end_date or req["endDate"] > end_date:
+                end_date = req["endDate"]
+    plan_id = (await client.create_plan(
+        biz_id=biz_id, title=plan_title, principal_id=principal_id,
+        start_date=start_date, end_date=end_date,
+    )).get("data")
     result["plan_id"] = plan_id
 
     # 7. Add cases to plan
