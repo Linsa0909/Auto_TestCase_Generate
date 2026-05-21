@@ -590,13 +590,13 @@ async def get_devops_plan_list(product_name: str = ""):
 # --- Sync Stories from DevOps ---
 class SyncStoriesModel(BaseModel):
     sprint_ids: list = []
+    sprint_name: str = ""
     product_name: str = ""
 
 
 @app.post("/api/devops-sync-stories")
 async def sync_stories_from_devops(body: SyncStoriesModel):
-    if not body.sprint_ids:
-        raise HTTPException(400, "请提供迭代ID列表")
+    sprint_name = body.product_name or ""  # reuse field for sprint name input
     devops_config = load_devops_config()
     devops_url = devops_config.get("devops_url", "")
     devops_username = devops_config.get("devops_username", "")
@@ -605,14 +605,38 @@ async def sync_stories_from_devops(body: SyncStoriesModel):
     client = DevOpsClient(base_url=devops_url)
     token = await client.login(devops_username, devops_password)
     if not token: raise HTTPException(400, "登录失败")
-    pname = body.product_name or devops_config.get("product_name", "")
+    pname = devops_config.get("product_name", "") or body.product_name or ""
     if not pname: raise HTTPException(400, "请提供产品名称")
     biz_id = await client.find_product_id(pname)
     if not biz_id: raise HTTPException(400, f"未找到产品: {pname}")
 
+    # Resolve sprint name → id if needed
+    sprint_ids = body.sprint_ids or []
+    if not sprint_ids and sprint_name:
+        sid = await client.find_sprint_by_name(biz_id, sprint_name)
+        if sid:
+            sprint_ids = [sid]
+        else:
+            raise HTTPException(400, f"未找到迭代: {sprint_name}")
+    if not sprint_ids:
+        raise HTTPException(400, "请提供迭代ID或名称")
+
     result = await client.get_story_list(biz_id, body.sprint_ids)
     data = result.get("data", {})
     items = data.get("items", [])
+    import re
+    def _fmt_desc(html_text):
+        if not html_text: return ""
+        # Strip HTML tags
+        text = re.sub(r'<[^>]+>', '', html_text)
+        # Unescape entities
+        text = text.replace('&nbsp;', ' ').replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>')
+        # Split at 【 markers and rejoin with line breaks
+        text = re.sub(r'(\s*)【', '\n\n【', text).strip()
+        # Collapse multiple blank lines
+        text = re.sub(r'\n{3,}', '\n\n', text)
+        return text
+
     logger.info(f"DevOps Sync: biz_id={biz_id} sprints={body.sprint_ids} total={data.get('totalRows')} returned={len(items)}")
     stories = []
     for item in items:
@@ -621,7 +645,7 @@ async def sync_stories_from_devops(body: SyncStoriesModel):
         stories.append({
             "id": str(item.get("id")),
             "title": item.get("title", ""),
-            "description": d.get("description", ""),
+            "description": _fmt_desc(d.get("description", "")),
             "priority": d.get("priorityObj", {}).get("name", ""),
             "status": d.get("status", {}).get("name", ""),
             "owner": d.get("owner", {}).get("name", ""),

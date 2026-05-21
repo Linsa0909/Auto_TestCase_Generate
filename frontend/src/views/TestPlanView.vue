@@ -82,7 +82,7 @@
               手动添加
             </button>
             <div class="flex items-center gap-2">
-              <input v-model="syncSprintId" placeholder="Sprint ID (如5308)" class="w-36 px-3 py-2 rounded-lg border border-zinc-300 text-sm focus:border-indigo-400 focus:outline-none transition-colors" />
+              <input v-model="syncSprintId" placeholder="迭代号 (如59或5293)" class="w-40 px-3 py-2 rounded-lg border border-zinc-300 text-sm focus:border-indigo-400 focus:outline-none transition-colors" />
               <button @click="syncFromDevops" :disabled="syncingDevops || !syncSprintId.trim()"
                 class="px-5 py-3 rounded-lg text-sm font-medium text-indigo-600 border border-indigo-300 hover:border-indigo-400 hover:text-indigo-700 transition-colors whitespace-nowrap flex items-center gap-1 disabled:opacity-40">
                 <CloudDownload class="w-4 h-4" :stroke-width="2" />
@@ -510,7 +510,8 @@ async function syncFromDevops() {
     const res = await fetch('/api/devops-sync-stories', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        sprint_ids: [syncSprintId.value.trim()],
+        sprint_ids: /^\d{4,}$/.test(syncSprintId.value.trim()) ? [syncSprintId.value.trim()] : [],
+        sprint_name: /^\d{4,}$/.test(syncSprintId.value.trim()) ? "" : syncSprintId.value.trim(),
         product_name: productName.value.trim(),
       }),
     })
