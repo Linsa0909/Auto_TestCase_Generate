@@ -120,7 +120,7 @@ class DevOpsClient:
         for g in groups:
             if g.get("title") == name:
                 return g.get("id")
-            for child in g.get("children", []):
+            for child in (g.get("children") or []):
                 if child.get("title") == name:
                     return child.get("id")
         return None
