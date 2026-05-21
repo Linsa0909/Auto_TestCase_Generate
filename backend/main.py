@@ -527,9 +527,11 @@ async def push_to_devops(plan_id: str):
         _push_progress[plan_id] = {"step": 10, "total": 10, "message": "推送完成", "done": True, "result": result}
         return {"status": "ok", "result": result}
     except Exception as e:
-        logger.error(f"Push to DevOps failed: {e}")
-        _push_progress[plan_id] = {"step": 0, "total": 10, "message": f"推送失败: {str(e)}", "done": True, "result": None, "error": str(e)}
-        raise HTTPException(500, f"推送失败: {str(e)}")
+        import traceback
+        logger.error(f"Push to DevOps TRACEBACK:\n{traceback.format_exc()}")
+        msg = str(e) or type(e).__name__
+        _push_progress[plan_id] = {"step": 0, "total": 10, "message": f"推送失败: {msg}", "done": True, "result": None, "error": msg}
+        raise HTTPException(500, f"推送失败: {msg}")
 
 
 @app.get("/api/push-progress/{plan_id}")
