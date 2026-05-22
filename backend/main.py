@@ -605,7 +605,7 @@ async def sync_stories_from_devops(body: SyncStoriesModel):
     client = DevOpsClient(base_url=devops_url)
     token = await client.login(devops_username, devops_password)
     if not token: raise HTTPException(400, "登录失败")
-    pname = devops_config.get("product_name", "") or body.product_name or ""
+    pname = body.product_name or devops_config.get("product_name", "")
     if not pname: raise HTTPException(400, "请提供产品名称")
     biz_id = await client.find_product_id(pname)
     if not biz_id: raise HTTPException(400, f"未找到产品: {pname}")
