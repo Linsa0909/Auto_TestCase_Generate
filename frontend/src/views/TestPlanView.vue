@@ -222,7 +222,7 @@
 
               <div class="mb-5">
                 <label class="block text-xs text-zinc-500 uppercase tracking-wider font-medium mb-2">需求描述</label>
-                <textarea v-model="selectedReq.description" rows="4" placeholder="添加需求描述..."
+                <textarea v-model="selectedReq.description" v-auto-resize placeholder="添加需求描述..."
                   class="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-400 focus:outline-none resize-none leading-relaxed transition-colors"></textarea>
               </div>
               <div class="mb-5">
@@ -710,6 +710,10 @@ async function exportBatch() {
   } catch (e) { toast(e.message, 'error') } finally { batchExporting.value = false }
 }
 
+const vAutoResize = {
+  mounted(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px' },
+  updated(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px' },
+}
 onMounted(() => { loadPlan() })
 </script>
 

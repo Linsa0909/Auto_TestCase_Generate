@@ -643,6 +643,10 @@ async def sync_stories_from_devops(body: SyncStoriesModel):
         text = re.sub(r'\n{3,}', '\n\n', text)
         # 【 section headers: ensure newline before
         text = re.sub(r'([^\n])【', r'\1\n\n【', text)
+        # Numbered items: (1) (2) 1) 2) 1. 2. — add newline before
+        text = re.sub(r'([^\n])(\(\d+\))', r'\1\n\2', text)
+        text = re.sub(r'([^\n])(\d+[）\)])', r'\1\n\2', text)
+        text = re.sub(r'([^\n])(\d+\.\s)', r'\1\n\2', text)
         text = text.strip()
         return text
 
