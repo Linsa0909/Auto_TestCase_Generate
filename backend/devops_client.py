@@ -206,6 +206,7 @@ class DevOpsClient:
     async def find_sprint_by_name(self, biz_id: str, sprint_name: str) -> str | None:
         """Find sprint ID by name (e.g., '59' or 'sprint59'). Searches multiple pages."""
         search = sprint_name.lower().replace("sprint", "").strip()
+        all_sprints = set()
         for page_no in [1, 2, 3]:
             resp = await self._post("/api/scrum/issue/getIssueTreeList", {
                 "obj": {"bizId": biz_id, "list": False, "productWorkItem": {"type": "story", "sprintIds": []},
@@ -218,9 +219,12 @@ class DevOpsClient:
                 sprint = d.get("sprint") or {}
                 sid = sprint.get("id", "")
                 sname = (sprint.get("name") or "").lower()
+                if sid and sname not in all_sprints:
+                    all_sprints.add(f"{sname}({sid})")
                 if sid and (search in sname or sname == f"sprint{search}"):
                     logger.info(f"Matched sprint: {sprint.get('name')} id={sid} (page={page_no})")
                     return str(sid)
+        logger.warning(f"Sprint '{sprint_name}' not found in {len(all_sprints)} sprints: {sorted(all_sprints)[:20]}")
         return None
 
     async def get_story_list(self, biz_id: str, sprint_ids: list, page_no: int = 1, page_size: int = 50) -> dict:
