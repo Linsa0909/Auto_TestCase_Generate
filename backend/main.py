@@ -649,15 +649,15 @@ async def sync_stories_from_devops(body: SyncStoriesModel):
     logger.info(f"DevOps Sync: biz_id={biz_id} sprints={body.sprint_ids} total={data.get('totalRows')} returned={len(items)}")
     stories = []
     for item in items:
-        d = item.get("data", {})
-        sprint = d.get("sprint", {})
+        d = item.get("data") or {}
+        sprint = d.get("sprint") or {}
         stories.append({
             "id": str(item.get("id")),
             "title": item.get("title", ""),
             "description": _fmt_desc(d.get("description", "")),
-            "priority": d.get("priorityObj", {}).get("name", ""),
-            "status": d.get("status", {}).get("name", ""),
-            "owner": d.get("owner", {}).get("name", ""),
+            "priority": (d.get("priorityObj") or {}).get("name", ""),
+            "status": (d.get("status") or {}).get("name", ""),
+            "owner": (d.get("owner") or {}).get("name", ""),
             "sprint_name": sprint.get("name", ""),
             "sprint_id": sprint.get("id", ""),
             "principal": (d.get("principal") or {}).get("name", ""),
