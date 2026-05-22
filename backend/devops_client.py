@@ -204,24 +204,23 @@ class DevOpsClient:
     # --- Issue/Story sync (pull from DevOps) ---
 
     async def find_sprint_by_name(self, biz_id: str, sprint_name: str) -> str | None:
-        """Find sprint ID by name (e.g., '59' or 'sprint59')."""
-        resp = await self._post("/api/scrum/issue/getIssueTreeList", {
-            "obj": {"bizId": biz_id, "list": False, "productWorkItem": {"type": "story", "sprintIds": []},
-                    "type": "productWorkItem", "overDate": False, "relateToMe": False, "customFormFilter": {}},
-            "page": {"pageNo": 1, "pageSize": 5},
-        })
-        items = (resp.get("data") or {}).get("items", [])
-        seen = set()
+        """Find sprint ID by name (e.g., '59' or 'sprint59'). Searches multiple pages."""
         search = sprint_name.lower().replace("sprint", "").strip()
-        for item in items:
-            d = item.get("data", {})
-            sprint = d.get("sprint") or {}
-            sid = sprint.get("id", "")
-            sname = (sprint.get("name") or "").lower()
-            if sid and sid not in seen and (search in sname or sname == f"sprint{search}"):
-                seen.add(sid)
-                logger.info(f"Matched sprint: {sprint.get('name')} id={sid}")
-                return str(sid)
+        for page_no in [1, 2, 3]:
+            resp = await self._post("/api/scrum/issue/getIssueTreeList", {
+                "obj": {"bizId": biz_id, "list": False, "productWorkItem": {"type": "story", "sprintIds": []},
+                        "type": "productWorkItem", "overDate": False, "relateToMe": False, "customFormFilter": {}},
+                "page": {"pageNo": page_no, "pageSize": 50},
+            })
+            items = (resp.get("data") or {}).get("items", [])
+            for item in items:
+                d = item.get("data", {})
+                sprint = d.get("sprint") or {}
+                sid = sprint.get("id", "")
+                sname = (sprint.get("name") or "").lower()
+                if sid and (search in sname or sname == f"sprint{search}"):
+                    logger.info(f"Matched sprint: {sprint.get('name')} id={sid} (page={page_no})")
+                    return str(sid)
         return None
 
     async def get_story_list(self, biz_id: str, sprint_ids: list, page_no: int = 1, page_size: int = 50) -> dict:
