@@ -621,36 +621,28 @@ async def sync_stories_from_devops(body: SyncStoriesModel):
     if not sprint_ids:
         raise HTTPException(400, "请提供迭代ID或名称")
 
-    result = await client.get_story_list(biz_id, body.sprint_ids)
+    result = await client.get_story_list(biz_id, sprint_ids)
     data = result.get("data", {})
     items = data.get("items", [])
+
     import re
     def _fmt_desc(html_text):
         if not html_text: return ""
-        # Remove <style> blocks entirely
         text = re.sub(r'<style[^>]*>.*?</style>', '', html_text, flags=re.DOTALL)
-        # Strip remaining HTML tags
         text = re.sub(r'<[^>]+>', '', text)
-        # Remove hex entities
         text = re.sub(r'&#x[0-9a-fA-F]+;?', '', text)
-        # Remove decimal entities
         text = re.sub(r'&#\d+;?', '', text)
-        # Unescape
-        text = text.replace('&nbsp;', ' ').replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>').replace('&emsp;', ' ')
-        # Collapse whitespace runs to single space
+        text = text.replace('&nbsp;',' ').replace('&amp;','&').replace('&lt;','<').replace('&gt;','>').replace('&emsp;',' ')
         text = re.sub(r'[ \t]+', ' ', text)
-        # Collapse 3+ newlines -> 2
         text = re.sub(r'\n{3,}', '\n\n', text)
-        # 【 section headers: ensure newline before
         text = re.sub(r'([^\n])【', r'\1\n\n【', text)
-        # Numbered items: (1) (2) 1) 2) 1. 2. — add newline before
         text = re.sub(r'([^\n])(\(\d+\))', r'\1\n\2', text)
         text = re.sub(r'([^\n])(\d+[）\)])', r'\1\n\2', text)
         text = re.sub(r'([^\n])(\d+\.\s)', r'\1\n\2', text)
         text = text.strip()
         return text
 
-    logger.info(f"DevOps Sync: biz_id={biz_id} sprints={body.sprint_ids} total={data.get('totalRows')} returned={len(items)}")
+    logger.info(f"DevOps Sync: biz_id={biz_id} sprints={sprint_ids} total={data.get('totalRows')} returned={len(items)}")
     stories = []
     for item in items:
         d = item.get("data") or {}
