@@ -117,43 +117,32 @@
             class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-zinc-900 text-white hover:bg-zinc-800 transition-all active:scale-[0.98]"
           >
             <Plus class="w-4 h-4" :stroke-width="2" />
-            新建计划
+            新建产品
           </button>
         </div>
 
         <!-- Create Form -->
         <div v-if="showCreate" class="mb-6 p-5 rounded-xl border border-zinc-200 bg-zinc-50">
-          <h3 class="text-sm font-semibold text-zinc-900 mb-4">新建测试计划</h3>
-          <div class="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label class="block text-xs text-zinc-500 uppercase tracking-wider font-medium mb-1.5">产品名称 <span class="text-rose-500">*</span></label>
-              <input
-                v-model="form.productName"
-                placeholder="例如：数据管理平台"
-                class="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-400 focus:outline-none transition-colors"
-              />
-            </div>
-            <div>
-              <label class="block text-xs text-zinc-500 uppercase tracking-wider font-medium mb-1.5">迭代名称 <span class="text-rose-500">*</span></label>
-              <input
-                v-model="form.iterationName"
-                placeholder="例如：Sprint 75"
-                class="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-400 focus:outline-none transition-colors"
-              />
-            </div>
+          <h3 class="text-sm font-semibold text-zinc-900 mb-4">新建产品</h3>
+          <div class="mb-4">
+            <label class="block text-xs text-zinc-500 uppercase tracking-wider font-medium mb-1.5">产品名称 <span class="text-rose-500">*</span></label>
+            <input
+              v-model="form.productName"
+              placeholder="按DevOps标准产品名输入，如：软件工厂-建模设计"
+              class="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-400 focus:outline-none transition-colors"
+            />
+            <p class="text-xs text-zinc-400 mt-1">创建产品后可继续添加迭代</p>
           </div>
           <div class="flex items-center gap-3">
             <button
-              @click="createPlan"
-              :disabled="!form.productName.trim() || !form.iterationName.trim()"
-              class="px-5 py-2.5 rounded-lg text-sm font-medium bg-zinc-900 text-white hover:bg-zinc-800 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              创建
+              @click="createWithProductOnly"
+              :disabled="!form.productName.trim()"
+              class="px-5 py-2.5 rounded-lg text-sm font-medium bg-zinc-900 text-white hover:bg-zinc-800 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed">
+              创建产品
             </button>
             <button
-              @click="showCreate = false; form.productName = ''; form.iterationName = ''"
-              class="px-5 py-2.5 rounded-lg text-sm font-medium text-zinc-500 border border-zinc-300 hover:border-zinc-400 hover:text-zinc-700 transition-colors"
-            >
+              @click="showCreate = false; form.productName = ''"
+              class="px-5 py-2.5 rounded-lg text-sm font-medium text-zinc-500 border border-zinc-300 hover:border-zinc-400 hover:text-zinc-700 transition-colors">
               取消
             </button>
           </div>
@@ -279,6 +268,25 @@ async function createPlan() {
     form.productName = ''
     form.iterationName = ''
     emit('open-plan', plan.id)
+  } catch (e) {
+    toast(e.message, 'error')
+  }
+}
+
+async function createWithProductOnly() {
+  const productName = form.productName.trim()
+  if (!productName) return
+  try {
+    const res = await fetch('/api/plans', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ product_name: productName, iteration_name: '待创建迭代' }),
+    })
+    if (!res.ok) throw new Error('创建失败')
+    toast('产品已创建，请点击进入并新建迭代', 'success')
+    showCreate.value = false
+    form.productName = ''
+    loadPlans()
   } catch (e) {
     toast(e.message, 'error')
   }

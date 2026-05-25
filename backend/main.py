@@ -811,8 +811,8 @@ async def list_plans():
 
 @app.post("/api/plans")
 async def create_plan(body: PlanCreateModel):
-    if not body.product_name.strip() or not body.iteration_name.strip():
-        raise HTTPException(400, "产品名称和迭代名称不能为空")
+    if not body.product_name.strip():
+        raise HTTPException(400, "产品名称不能为空")
     plans = load_plans()
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     plan = {
