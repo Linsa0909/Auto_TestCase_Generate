@@ -92,13 +92,18 @@
             <Download class="w-3.5 h-3.5" :stroke-width="2" />
             {{ exporting ? '导出中...' : '导出编辑结果' }}
           </button>
-          <button
-            @click="pushCasesToDevops" :disabled="pushingCases"
-            class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium border border-indigo-400 text-indigo-600 hover:border-indigo-500 hover:text-indigo-700 transition-colors active:scale-[0.98]"
-          >
-            <CloudDownload class="w-3.5 h-3.5" :stroke-width="2" />
-            {{ pushingCases ? pushCasesMsg : '导入到 DevOps' }}
-          </button>
+          <div class="flex flex-col gap-2">
+            <button
+              @click="pushCasesToDevops" :disabled="pushingCases"
+              class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium border border-indigo-400 text-indigo-600 hover:border-indigo-500 hover:text-indigo-700 transition-colors active:scale-[0.98] disabled:opacity-60"
+            >
+              <CloudDownload class="w-3.5 h-3.5" :stroke-width="2" />
+              {{ pushingCases ? pushCasesMsg : `导入到 DevOps (${result?.test_cases?.length || 0}条)` }}
+            </button>
+            <div v-if="pushingCases" class="h-[3px] bg-zinc-200 rounded-full overflow-hidden">
+              <div class="h-full w-1/2 bg-indigo-400 rounded-full animate-pulse" />
+            </div>
+          </div>
         </div>
       </div>
       <StatsPanel :cases="result?.test_cases || []" />
