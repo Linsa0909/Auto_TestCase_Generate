@@ -151,38 +151,22 @@ class AIGenerator:
         else:
             logger.info("Using skill-enhanced prompt from prompt-engineer")
 
-        # Detect v4 models → use Anthropic endpoint
-        is_v4 = "v4" in self.model.lower() or "deepseek-v4" in self.model.lower()
-        if is_v4:
-            url = f"{self.base_url}/anthropic/v1/messages"
-            payload = {
-                "model": self.model,
-                "max_tokens": 8192,
-                "system": SYSTEM_PROMPT,
-                "messages": [{"role": "user", "content": user_prompt}],
-            }
-            headers = {
-                "x-api-key": self.api_key,
-                "anthropic-version": "2023-06-01",
-                "Content-Type": "application/json",
-            }
-        else:
-            url = f"{self.base_url}/v1/chat/completions"
-            payload = {
-                "model": self.model,
-                "messages": [
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": user_prompt},
-                ],
-                "temperature": 0.2,
-                "max_tokens": 8192,
-            }
-            headers = {
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json",
-            }
+        url = f"{self.base_url}/v1/chat/completions"
+        payload = {
+            "model": self.model,
+            "messages": [
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt},
+            ],
+            "temperature": 0.2,
+            "max_tokens": 8192,
+        }
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
 
-        logger.info(f"Calling {url} model={self.model} {'(Anthropic)' if is_v4 else '(OpenAI)'}")
+        logger.info(f"Calling {url} model={self.model}")
 
         try:
             async with httpx.AsyncClient(timeout=300.0) as client:
@@ -203,10 +187,7 @@ class AIGenerator:
 
         data = resp.json()
         try:
-            if is_v4:
-                raw_content = data["content"][0]["text"]
-            else:
-                raw_content = data["choices"][0]["message"]["content"]
+            raw_content = data["choices"][0]["message"]["content"]
         except (KeyError, IndexError):
             raise Exception(f"API返回格式异常: {json.dumps(data, ensure_ascii=False)[:300]}")
 

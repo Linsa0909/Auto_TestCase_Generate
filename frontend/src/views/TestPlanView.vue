@@ -502,6 +502,10 @@ function addEmptyRow() {
 }
 
 const syncSprintId = ref('')
+watch(iterationName, (val) => {
+  const m = (val || '').match(/sprint\s*(\d+)/i) || (val || '').match(/(\d+)/)
+  if (m) syncSprintId.value = m[1]
+})
 const syncingDevops = ref(false)
 async function syncFromDevops() {
   if (!syncSprintId.value.trim()) { toast('请输入Sprint ID', 'error'); return }
